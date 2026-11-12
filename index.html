@@ -1,0 +1,1094 @@
+<title>Software Shelf Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one reading column with a sticky section bar. Single light theme in Rose-Hulman maroon, white, and silver with black text. */
+:root{
+  --bg:#FFFFFF; --surface:#F2F2F2; --ink:#000000; --muted:#5F5E5D; --rule:#D6D5D4; --silver:#B3B2B1;
+  --red:#800000; --red-soft:#F7EDED; --on-red:#FFFFFF;
+  --h1:#F7EDED; --h1t:#000000; --h2:#E6C2C2; --h2t:#000000; --h3:#C98A8A; --h3t:#000000; --h4:#A34646; --h4t:#FFFFFF; --h5:#800000; --h5t:#FFFFFF;
+  --parts:#8C8B8A; --data:#000000; --soft:#000000; --money:#800000; --rules:#5F5E5D;
+  --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:32px 96px}
+h1,h2,h3,h4{text-wrap:balance;margin:0;color:var(--ink)}
+p{margin:0;max-width:70ch}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+sup a{color:var(--red);text-decoration:none;font-weight:600;font-size:11px;padding-left:1px}
+.tag{font-size:11.5px;font-weight:600;color:var(--muted);border:1px solid var(--rule);border-radius:3px;padding:0 5px;white-space:nowrap}
+
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--red)}
+nav.bar .in{max-width:1040px;margin:0 auto;padding-inline:20px;display:flex;gap:4px 18px;overflow-x:auto;white-space:nowrap;padding-block:10px;font-size:13.5px}
+nav.bar a{text-decoration:none;color:var(--muted);font-weight:500}
+nav.bar a:hover{color:var(--red)}
+
+header{border-bottom:2px solid var(--ink);padding-bottom:26px;display:grid;gap:14px;padding-top:12px}
+.crumb{font-size:13px;color:var(--muted)}
+h1{font-size:clamp(28px,4.4vw,40px);line-height:1.15;font-weight:700;max-width:24ch}
+.lede{font-size:18px;color:var(--ink);max-width:64ch;line-height:1.55}
+.status{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;font-weight:600;border:1px solid var(--red);color:var(--red);border-radius:3px;padding:3px 9px}
+.howto{background:var(--surface);border-radius:4px;padding:16px 20px;display:grid;gap:10px}
+.howto h2{font-size:17px}
+.howto ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.howto p{font-size:14.5px;color:var(--muted)}
+
+section{padding-top:60px;display:grid;gap:16px}
+.req{font-size:13px;color:var(--red);font-weight:600}
+h2{font-size:26px;font-weight:600;line-height:1.25}
+h3{font-size:19px;font-weight:600;line-height:1.3;padding-top:8px}
+.sub{color:var(--muted)}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fact{background:var(--surface);border-top:3px solid var(--red);border-radius:0 0 4px 4px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.fact .n{font-size:24px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+.fact span{font-size:14px;color:var(--muted);line-height:1.45}
+.callout{border-left:3px solid var(--red);background:var(--red-soft);padding:16px 20px;border-radius:0 4px 4px 0;display:grid;gap:8px}
+.callout p{max-width:72ch}
+
+.ps{display:grid;gap:0;border:1px solid var(--rule);border-radius:4px}
+.ps div{display:grid;grid-template-columns:200px 1fr;gap:4px 20px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.ps div:last-child{border-bottom:0}
+.ps dt{font-weight:700;color:var(--red);font-size:15px}
+.ps dd{margin:0;font-size:15.5px;max-width:70ch}
+
+.trail{display:grid}
+.tr{display:grid;grid-template-columns:130px 1fr;gap:4px 18px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.tr .v{font-size:12.5px;font-weight:700;align-self:start;padding:2px 8px;border-radius:3px;justify-self:start}
+.tr .v.drop{background:var(--surface);color:var(--muted)}
+.tr .v.keep{background:var(--rule);color:var(--ink)}
+.tr .v.pick{background:var(--red);color:var(--on-red)}
+.tr b{font-size:16px}
+.tr p{font-size:15px;color:var(--ink);grid-column:2}
+
+.diagram{border:1px solid var(--rule);border-radius:4px;padding:12px;overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:760px;height:auto}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13.5px;color:var(--muted);align-items:center}
+.legend-row i{display:inline-block;width:28px;height:0;border-top-width:2.5px;border-top-style:solid;vertical-align:middle;margin-right:6px}
+
+.tiers{display:flex;flex-wrap:wrap;gap:10px;font-size:14px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border-radius:999px;padding:2px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.open{background:var(--bg);color:var(--ink);border:1px solid var(--silver)}
+.pill.mid{background:var(--rule);color:var(--ink);border:1px solid var(--rule)}
+.pill.locked{background:var(--red);color:var(--on-red);border:1px solid var(--red)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.legend div{background:var(--surface);border-radius:4px;padding:12px 14px;font-size:14px;line-height:1.5}
+.legend b{display:block;font-size:14.5px}
+.legend span{color:var(--muted)}
+
+.flow{display:grid;gap:10px}
+.band{border:1px solid var(--rule);border-radius:4px;padding:14px 16px;display:grid;gap:10px}
+.band-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;align-items:baseline}
+.band-head h3{font-size:16.5px;padding-top:0}
+.band-head p{font-size:13.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.stage{background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:9px 12px;display:grid;gap:5px;min-width:0}
+.stage.w{border:2px solid var(--red)}
+.stage .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stage .id{font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.stage .nm{font-size:14.5px;font-weight:600;line-height:1.3}
+.stage .ly{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.stage .wt{font-size:11.5px;font-weight:600;color:var(--red)}
+.arrow{justify-self:center;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
+.arrow::before,.arrow::after{content:"";width:40px;height:1px;background:var(--rule)}
+
+.scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.45}
+th{text-align:left;font-weight:600;font-size:12.5px;color:var(--muted);padding:10px 12px;border-bottom:2px solid var(--ink);vertical-align:bottom;background:var(--bg);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr.grp td{background:var(--surface);font-weight:600;font-size:13px;color:var(--muted);padding:7px 12px}
+tr.w td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.heat td.sc{text-align:center;font-weight:600;font-variant-numeric:tabular-nums;width:50px;padding:10px 4px}
+.s1{background:var(--h1);color:var(--h1t)} .s2{background:var(--h2);color:var(--h2t)} .s3{background:var(--h3);color:var(--h3t)} .s4{background:var(--h4);color:var(--h4t)} .s5{background:var(--h5);color:var(--h5t)}
+.heat td.nm b{display:block;font-weight:600}
+.heat td.nm span{color:var(--muted);font-size:13px}
+.heat .tot{text-align:right;white-space:nowrap}
+.detail{min-width:960px}
+.detail td{font-size:13.5px}
+.detail td:first-child{font-weight:600;width:150px}
+.wide{min-width:820px}
+.wide td{font-size:13.5px}
+.wide td:first-child{font-weight:600}
+.reg{min-width:1180px}
+.reg td{font-size:13px}
+.reg td:first-child{font-weight:600;white-space:nowrap}
+.blank{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.pools{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pool{border-left:3px solid var(--silver);padding:4px 0 4px 14px;display:grid;gap:2px;align-content:start}
+.pool b{font-size:14.5px}
+.pool .fig{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.pool span{font-size:13.5px;color:var(--muted)}
+.pool.gap{border-left-color:var(--red)}
+.pool.gap .fig{font-size:15.5px}
+
+.skills{display:grid;gap:10px}
+.skill{display:grid;grid-template-columns:170px 1fr;gap:4px 18px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.skill b{font-size:14.5px}
+.skill p{font-size:14.5px}
+
+.spots{display:grid;gap:10px}
+.spot{display:grid;grid-template-columns:auto 1fr;gap:3px 16px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.spot .pill{grid-row:1/3;align-self:start;margin-top:3px}
+.spot b{font-size:15.5px}
+.spot p{font-size:14.5px;color:var(--ink)}
+.note{background:var(--surface);border-left:3px solid var(--silver);border-radius:0 4px 4px 0;padding:14px 18px;font-size:14.5px;line-height:1.55}
+
+.bmc-wrap{display:grid;gap:12px}
+.bmc-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline}
+.bmc-head p{font-size:14px;color:var(--muted)}
+.bmc{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.blk{background:var(--surface);border-radius:4px;padding:12px 13px;display:grid;gap:6px;align-content:start;min-width:0}
+.blk h4{font-size:13px;font-weight:700}
+.blk ul{margin:0;padding-left:16px;display:grid;gap:5px;font-size:13.5px;line-height:1.45}
+.blk.vp{background:var(--red-soft)}
+.kp{grid-column:1/3;grid-row:1/3} .ka{grid-column:3/5;grid-row:1} .kr{grid-column:3/5;grid-row:2}
+.vp{grid-column:5/7;grid-row:1/3} .cr{grid-column:7/9;grid-row:1} .ch{grid-column:7/9;grid-row:2}
+.cs{grid-column:9/11;grid-row:1/3} .co{grid-column:1/6;grid-row:3} .rv{grid-column:6/11;grid-row:3}
+.lesson{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.lesson div{border:1px solid var(--rule);border-radius:4px;padding:14px 16px;font-size:14.5px;line-height:1.5;display:grid;gap:4px;align-content:start}
+.lesson b{font-size:15px}
+
+.verdict{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:3px;white-space:nowrap}
+.verdict.hi{background:var(--red);color:var(--on-red)}
+.verdict.md{background:var(--rule);color:var(--ink)}
+.verdict.lo{background:var(--surface);color:var(--muted)}
+
+.personas{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.persona{border:1px solid var(--rule);border-radius:4px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.persona .role{font-size:12.5px;font-weight:600;color:var(--red)}
+.persona b{font-size:16px;line-height:1.3}
+.persona dl{margin:0;display:grid;gap:6px;font-size:13.5px;line-height:1.45}
+.persona dt{font-weight:600;font-size:12.5px;color:var(--muted)}
+.persona dd{margin:0}
+
+.wedge{border:1px solid var(--rule);border-radius:4px;padding:18px 20px;display:grid;gap:12px}
+.wedge.lead{border:2px solid var(--red)}
+.wedge-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.wedge-head .t{font-size:12px;font-weight:700;border-radius:3px;padding:2px 8px;background:var(--red);color:var(--on-red)}
+.wedge-head .t.alt{background:var(--surface);color:var(--muted)}
+.wedge h3{font-size:20px;padding-top:0}
+.claim{font-size:16px;font-weight:500;max-width:72ch}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 22px;margin:0}
+.wgrid div{display:grid;gap:3px;align-content:start}
+.wgrid dt{font-size:12.5px;font-weight:700;color:var(--muted)}
+.wgrid dd{margin:0;font-size:14.5px;line-height:1.5}
+.weak{background:var(--red-soft);border-radius:4px;padding:12px 14px;font-size:14.5px;line-height:1.5}
+.weak b{color:var(--red)}
+.math{background:var(--surface);border-radius:4px;padding:12px 14px;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums}
+.math b{font-size:15px}
+.path{counter-reset:p;list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.path li{counter-increment:p;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;font-size:15px}
+.path li::before{content:counter(p);width:26px;height:26px;border-radius:50%;background:var(--red);color:var(--on-red);display:grid;place-items:center;font-size:13px;font-weight:600}
+
+.society{display:grid;gap:0;border:1px solid var(--rule);border-radius:4px}
+.society div{display:grid;grid-template-columns:150px 1fr;gap:4px 20px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.society div:last-child{border-bottom:0;background:var(--red-soft)}
+.society dt{font-weight:700;font-size:15px}
+.society dd{margin:0;font-size:15px;max-width:72ch}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.steps div{border-top:3px solid var(--red);background:var(--surface);border-radius:0 0 4px 4px;padding:12px 14px;font-size:14.5px;display:grid;gap:3px;align-content:start}
+.steps b{font-size:15.5px}
+.point{font-size:19px;font-weight:500;line-height:1.45;max-width:64ch;border-left:4px solid var(--red);padding-left:14px}
+ul.brief{margin:0;padding-left:20px;display:grid;gap:7px;font-size:16px;max-width:76ch}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.duo>div{border:1px solid var(--rule);border-radius:4px;padding:14px 18px;display:grid;gap:8px;align-content:start}
+.duo h3{padding-top:0}
+details.more{border:1px solid var(--rule);border-radius:4px;background:var(--bg)}
+details.more>summary{cursor:pointer;list-style:none;padding:11px 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font-size:15px}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary b{color:var(--red);font-weight:600}
+details.more>summary span{color:var(--muted);font-size:13.5px}
+details.more>summary::after{content:"Show";margin-left:auto;font-size:12.5px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:3px;padding:1px 8px}
+details.more[open]>summary::after{content:"Hide"}
+details.more[open]>summary{border-bottom:1px solid var(--rule)}
+details.more>.in{padding:14px 16px 18px;display:grid;gap:14px}
+.req .sct{color:var(--muted);font-weight:500}
+.top4{margin:0;padding-left:20px;display:grid;gap:6px;max-width:76ch;font-size:15px}
+@media print{details.more>summary::after{content:none}}
+.src{font-size:13.5px;color:var(--muted);display:grid;gap:6px;max-width:86ch;padding-left:0;margin:0;list-style:none;counter-reset:s}
+.src li{counter-increment:s;position:relative;padding-left:36px}
+.src li::before{content:"[" counter(s) "]";position:absolute;left:0;top:0;color:var(--red);font-weight:600}
+.src a{color:var(--ink)}
+
+@media (max-width:760px){
+  .bmc{grid-template-columns:1fr}
+  .kp,.ka,.kr,.vp,.cr,.ch,.cs,.co,.rv{grid-column:auto;grid-row:auto}
+  .tr,.ps div,.society div,.skill{grid-template-columns:1fr}
+  .tr p{grid-column:1}
+}
+@media (max-width:560px){
+  body{font-size:15px}
+  .wrap{padding-block:24px 72px;padding-inline:16px}
+  nav.bar .in{padding-inline:16px}
+  h2{font-size:22px}
+  .spot{grid-template-columns:1fr}
+  .spot .pill{grid-row:auto;justify-self:start}
+}
+</style>
+
+<nav class="bar" aria-label="Sections"><div class="in">
+  <a href="#summary">Summary</a><a href="#problem">Problem</a><a href="#trail">Decisions</a><a href="#ecosystem">Ecosystem</a><a href="#chain">Value chain</a><a href="#canvases">Business models</a><a href="#feasibility">Feasibility</a><a href="#wedges">Wedges</a><a href="#tests">Tests and outreach</a><a href="#society">Society</a><a href="#registry">Registry</a><a href="#walkthrough">Walkthrough</a><a href="#sources">Sources</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <div class="crumb">EcoCAR Innovation Challenge · Product Innovation Track · Rose-Hulman Institute of Technology · Studio 1 business portfolio</div>
+  <h1>Who keeps a software-defined car working for 15 years, and who pays for it?</h1>
+  <p class="lede">This portfolio studies what happens to software-defined vehicles after they are sold, when the software and cellular hardware inside them reach end of life before the vehicle does.</p>
+  <div class="status"><span class="chip">Updated after Check-In 1, Nov 12</span><span class="chip">Scores and prices are labeled as our estimates</span></div>
+  <div class="howto"><p style="color:var(--ink)">Key points are shown on the page. Click any bar marked <b style="color:var(--red)">Show</b> for the detail behind them. Superscript numbers link to sources.</p></div>
+</header>
+
+<!-- SUMMARY -->
+<section id="summary">
+  <div class="req">B-1.3.1 · Executive summary <span class="sct">· Scorecard: Communication</span></div>
+  <h2>Summary</h2>
+  <p class="point">Cars now last longer than the software and modems inside them. The carmaker decides when support ends, but fleets and later owners deal with the result.</p>
+  <div class="facts">
+    <div class="fact"><div class="n">12.8 years</div><span>Average age of a vehicle on US roads in 2025, a record high.<sup><a href="#s1">1</a></sup></span></div>
+    <div class="fact"><div class="n">Millions</div><span>of vehicles lost connected features, including some safety features, when 3G networks shut down in 2022.<sup><a href="#s2">2</a></sup><sup><a href="#s3">3</a></sup></span></div>
+    <div class="fact"><div class="n">37.4 million</div><span>Used vehicles sold in the US in 2024.<sup><a href="#s6">6</a></sup></span></div>
+    <div class="fact"><div class="n">$80B to $90B</div><span>BCG's 2035 estimate for software-driven services in the vehicle, including aftersales.<sup><a href="#s5">5</a></sup></span></div>
+  </div>
+  <div class="callout"><p><b>Lead wedge (W1):</b> a VIN-based audit that tells a fleet's technicians which vehicles will lose connected features, when, and how to fix each one.</p></div>
+  <details class="more"><summary><b>Full summary</b> <span>background and the full wedge description</span></summary><div class="in">
+<p>Software-defined vehicles are sold with the expectation that they will keep improving through software updates. However, vehicles stay in service for well over a decade, while the computers and cellular modems inside them become outdated much sooner. When a cellular network shuts down or a carmaker ends software support, connected features stop working and security updates stop arriving. This already happened at scale when 3G networks shut down in 2022,<sup><a href="#s2">2</a></sup> and industry coverage has raised the same concern for 4G.<sup><a href="#s4">4</a></sup></p>
+  <p>The carmaker decides how long a vehicle receives software support, but it no longer owns the vehicle after the first sale. Fleets, later owners, repair shops, and used-car buyers absorb the consequences, and they have little visibility into when support or connectivity will end.</p>
+  <div class="callout">
+    <p><b>Lead wedge (W1):</b> a software and connectivity audit for public and utility fleets, built for the shop supervisor or telematics technician who keeps the fleet's connected systems working. They provide a list of vehicle identification numbers (VINs) and receive, for each vehicle, the connected hardware it has, the network it depends on, when service or software support ends, and the recommended fix: a software update, a module replacement, an add-on retrofit, or replacing the vehicle. The fleet manager uses the same report to budget.</p>
+    <p><b>Longer term:</b> if W1 proves useful, the same database could support a software condition report for used vehicles (W2), which is a larger market.</p>
+  </div>
+</div></details>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="req">Problem statement <span class="sct">· Scorecard: Desirability</span></div>
+  <h2>The problem we are studying</h2>
+  <dl class="ps">
+    <div><dt>Who</dt><dd>Fleet shop supervisors and telematics technicians at public and utility fleets.</dd></div>
+    <div><dt>Problem</dt><dd>When a connected feature fails, they work out the hardware, the cause, and the fix by hand, one vehicle at a time. Nothing ties this information to the VIN.</dd></div>
+    <div><dt>What would be better</dt><dd>Seeing it in advance, by VIN, so repairs are scheduled and budgeted instead of discovered.</dd></div>
+    <div><dt>Status</dt><dd>Based on public sources. Not yet confirmed in interviews.</dd></div>
+  </dl>
+  <details class="more"><summary><b>Full problem statement</b> <span>the detailed situation, with sources</span></summary><div class="in">
+<dl class="ps">
+    <div><dt>Who has the problem</dt><dd>The fleet shop supervisor or telematics technician who keeps a public or utility fleet's connected systems working, at places such as a city street department, a county highway department, or a school district transportation office. The fleet manager, who approves the budget, feels the cost second.</dd></div>
+    <div><dt>Their situation</dt><dd>Fleet vehicles contain factory-installed cellular modems and software that depend on cellular networks and on carmaker support. When a connected feature such as remote diagnostics, location tracking, or automatic crash notification stops working, the technician has to work out, one vehicle at a time, which modem and telematics hardware is installed, which network it uses, whether the cause is a network shutdown, an end of software support, or a hardware fault, and whether a software update, a replacement module, or an add-on device will fix it. That information is spread across build specifications, owner manuals, and service bulletins that vary by make, model, and year, and we have not found a tool that ties it to the VIN. The 3G shutdown in 2022 showed that this can affect many vehicles at once.<sup><a href="#s2">2</a></sup><sup><a href="#s3">3</a></sup></dd></div>
+    <div><dt>What would be better</dt><dd>If the technician could see in advance, by VIN, what connected hardware each vehicle has, when it loses service, and what the fix is, the shop could schedule retrofits during routine maintenance and give the fleet manager a costed list for the budget, instead of diagnosing failures after features stop working.</dd></div>
+  </dl>
+  <p class="sub">This statement is based on public sources. We have not yet confirmed it with fleet technicians or managers; those interviews are the first step in our test plan.</p>
+</div></details>
+</section>
+
+<!-- TRAIL -->
+<section id="trail">
+  <div class="req">Decision trail <span class="sct">· Scorecard: Process</span></div>
+  <h2>How we chose this focus area</h2>
+  <p class="point">We rejected two earlier ideas before choosing the vehicle after the sale.</p>
+  <details class="more"><summary><b>Ideas we considered and why we changed direction</b> <span>five decisions</span></summary><div class="in">
+<div class="trail">
+    <div class="tr"><span class="v drop">Rejected</span><b>V2X with an emergency stop device</b><p>The stopping function already exists as automatic emergency braking. V2X only works once most surrounding vehicles have it, and safety-critical braking is beyond what a student team can credibly design and validate.</p></div>
+    <div class="tr"><span class="v drop">Changed direction</span><b>"How does a software change get proven good enough to ship?"</b><p>We mapped 18 stages and found several open areas. However, the space has well-funded competitors (Applied Intuition was valued at $15 billion in 2025<sup><a href="#s19">19</a></sup>), the people we would need to interview work inside carmakers, and the buyer is difficult for a student team to reach. We kept the scoring method and one wedge idea, which became W3.</p></div>
+    <div class="tr"><span class="v drop">Rejected</span><b>Upfitter integration, OTA rollout, and vehicles powering buildings</b><p>Upfitter integration fell outside the stages we had chosen at the time. OTA rollout is likely to attract many other teams. Using vehicles to power buildings moved away from software-defined vehicles toward the energy industry.</p></div>
+    <div class="tr"><span class="v keep">Kept for later</span><b>Software condition report for used vehicles</b><p>This may be the largest opportunity, but it requires reading data from inside the vehicle, which is the most difficult part. It became W2 and builds on what W1 teaches us.</p></div>
+    <div class="tr"><span class="v pick">Chosen</span><b>The software-defined vehicle after the sale</b><p>It has a documented precedent in the 3G shutdown, local interview access, a clear gap between who controls the software and who owns the vehicle, and a lead wedge we can test without carmaker permission.</p></div>
+  </div>
+</div></details>
+</section>
+
+<!-- ECOSYSTEM -->
+<section id="ecosystem">
+  <div class="req">B-1.3.1 · Ecosystem diagram <span class="sct">· Scorecard: Desirability</span></div>
+  <h2>Who is involved and what moves between them</h2>
+  <p class="point">The carmaker controls software support but does not own the vehicle after the first sale. Fleets and later owners deal with the result.</p>
+<div class="diagram">
+  <svg viewBox="0 0 1000 640" role="img" aria-label="Ecosystem diagram of the software-defined vehicle after the sale">
+    <defs>
+      <marker id="mParts" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--parts)"/></marker>
+      <marker id="mData" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--data)"/></marker>
+      <marker id="mSoft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--soft)"/></marker>
+      <marker id="mMoney" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--money)"/></marker>
+      <marker id="mRules" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--rules)"/></marker>
+    </defs>
+    <style>
+      .nd{fill:#FFFFFF;stroke:#000000;stroke-width:1.4}
+      .ndw{fill:#F7EDED;stroke:#800000;stroke-width:2.4}
+      .hub{fill:#000000}
+      .t{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px;font-weight:600;fill:#000000}
+      .ts{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11.5px;fill:#5F5E5D}
+      .th{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;font-weight:700;fill:#FFFFFF}
+      .tsh{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11.5px;fill:#FFFFFF}
+      .lb{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11.5px;fill:#5F5E5D}
+      .lbr{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11.5px;font-weight:600;fill:#800000}
+      .band{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:12px;font-weight:700;fill:#5F5E5D}
+      .p{fill:none;stroke-width:1.8}
+      .parts{stroke:var(--parts);marker-end:url(#mParts)}
+      .data{stroke:var(--data);stroke-dasharray:6 4;marker-end:url(#mData)}
+      .soft{stroke:var(--soft);marker-end:url(#mSoft)}
+      .money{stroke:var(--money);marker-end:url(#mMoney)}
+      .rules{stroke:var(--rules);stroke-dasharray:2 4;marker-end:url(#mRules)}
+      .sep{stroke:#D6D5D4;stroke-width:1;stroke-dasharray:4 4}
+    </style>
+
+    <text class="band" x="30" y="20">BUILDING AND OPERATING THE VEHICLE</text>
+
+    <rect class="nd" x="30" y="40" width="210" height="58" rx="3"/>
+    <text class="t" x="44" y="64">Chip and modem makers</text><text class="ts" x="44" y="84">Computers, cellular modems</text>
+    <rect class="nd" x="30" y="128" width="210" height="58" rx="3"/>
+    <text class="t" x="44" y="152">Cellular carriers</text><text class="ts" x="44" y="172">The vehicle's network</text>
+    <rect class="nd" x="30" y="216" width="210" height="58" rx="3"/>
+    <text class="t" x="44" y="240">Software and security</text><text class="ts" x="44" y="260">Update, monitoring tools</text>
+
+    <rect class="nd" x="410" y="30" width="180" height="50" rx="3"/>
+    <text class="t" x="424" y="52">Regulators</text><text class="ts" x="424" y="70">Safety, cyber, repair rules</text>
+
+    <rect class="hub" x="390" y="118" width="220" height="140" rx="3"/>
+    <text class="th" x="410" y="150">Carmaker</text>
+    <text class="tsh" x="410" y="176">Owns the software and decides</text>
+    <text class="tsh" x="410" y="194">how long each vehicle is</text>
+    <text class="tsh" x="410" y="212">supported, but no longer owns</text>
+    <text class="tsh" x="410" y="230">the vehicle after the first sale</text>
+
+    <rect class="ndw" x="770" y="112" width="200" height="58" rx="3"/>
+    <text class="t" x="784" y="136">Fleets</text><text class="ts" x="784" y="156">City, county, utility</text>
+    <rect class="nd" x="770" y="206" width="200" height="58" rx="3"/>
+    <text class="t" x="784" y="230">First owners</text><text class="ts" x="784" y="250">Individual buyers</text>
+
+    <path class="p parts" d="M242 69 H310 V150 H386"/>
+    <text class="lb" x="250" y="61">chips, modems</text>
+    <path class="p data" d="M242 172 H386"/>
+    <text class="lb" x="250" y="164">network access</text>
+    <path class="p soft" d="M242 245 H310 V230 H386"/>
+    <text class="lb" x="250" y="268">updates, monitoring</text>
+    <path class="p rules" d="M500 82 V114"/>
+    <text class="lb" x="508" y="102">rules for the vehicle's whole life</text>
+
+    <path class="p soft" d="M612 132 H766" style="stroke-width:2.6"/>
+    <text class="lbr" x="622" y="124">vehicle + updates</text>
+    <path class="p money" d="M768 156 H616"/>
+    <text class="lb" x="622" y="174">purchase</text>
+    <path class="p soft" d="M612 222 H766"/>
+    <text class="lb" x="622" y="214">vehicle + updates</text>
+    <path class="p money" d="M768 246 H616"/>
+    <text class="lb" x="622" y="264">purchase</text>
+
+    <line class="sep" x1="20" y1="316" x2="980" y2="316"/>
+    <text class="band" x="30" y="342">AFTER THE FIRST SALE</text>
+
+    <rect class="nd" x="30" y="380" width="200" height="58" rx="3"/>
+    <text class="t" x="44" y="404">Diagnostic tools, data</text><text class="ts" x="44" y="424">Tool makers, data platforms</text>
+    <rect class="nd" x="290" y="380" width="200" height="58" rx="3"/>
+    <text class="t" x="304" y="404">Dealers and shops</text><text class="ts" x="304" y="424">Franchised and independent</text>
+    <rect class="nd" x="550" y="380" width="200" height="58" rx="3"/>
+    <text class="t" x="564" y="404">Resale</text><text class="ts" x="564" y="424">Reports, auctions, insurers</text>
+    <rect class="nd" x="790" y="380" width="180" height="58" rx="3"/>
+    <text class="t" x="804" y="404">Later owners</text><text class="ts" x="804" y="424">Second and third buyers</text>
+
+    <path class="p data" d="M450 260 V376"/>
+    <text class="lb" x="460" y="300">repair data,</text>
+    <text class="lb" x="460" y="316">until support ends</text>
+    <path class="p parts" d="M870 266 V350 H650 V376"/>
+    <text class="lb" x="662" y="342">retired and traded-in vehicles</text>
+    <path class="p data" d="M232 409 H286"/>
+    <text class="lb" x="236" y="398">tools</text>
+    <path class="p data" d="M752 409 H786"/>
+    <text class="lb" x="738" y="372">vehicle + history</text>
+    <path class="p money" d="M880 440 V476 H390 V442"/>
+    <text class="lb" x="560" y="492">payment for repairs and maintenance</text>
+
+    <rect x="30" y="520" width="940" height="96" rx="3" style="fill:#F7EDED;stroke:#800000;stroke-width:1.2"/>
+    <text class="t" x="50" y="550" style="fill:#800000">The gap we are working in</text>
+    <text class="lb" x="50" y="574" style="fill:#000000">The carmaker decides when software support and connectivity end. Fleets and later owners carry the cost and usually have no advance notice.</text>
+    <text class="lb" x="50" y="594" style="fill:#000000">History reports describe what happened to a vehicle. They do not describe its software condition or how long its connection will last.</text>
+  </svg>
+  </div>
+  <div class="legend-row">
+    <span><i style="border-color:var(--parts)"></i>parts and vehicles</span>
+    <span><i style="border-color:var(--data);border-top-style:dashed"></i>data and access</span>
+    <span><i style="border-color:var(--soft)"></i>software</span>
+    <span><i style="border-color:var(--money)"></i>money</span>
+    <span><i style="border-color:var(--rules);border-top-style:dotted"></i>rules</span>
+    <span><i style="border-color:var(--red);border-top-width:6px"></i>highlighted box: where our lead wedge sits</span>
+  </div>
+  <details class="more"><summary><b>How to read the diagram</b> <span>what the boxes and arrows mean, and the rules it references</span></summary><div class="in">
+<p>Boxes represent types of actors, not individual companies. Arrows show what moves between them. The top half covers building and operating the vehicle. The bottom half covers everything after the first sale.</p>
+<p>The rules arrow refers to UN R155, which requires carmakers' cybersecurity management to continue covering vehicles after they are sold,<sup><a href="#s13">13</a></sup> and to state right-to-repair laws such as Massachusetts' 2020 vehicle data access law, which passed with about 75 percent of the vote and remains in dispute.<sup><a href="#s12">12</a></sup></p>
+</div></details>
+</section>
+
+<!-- VALUE CHAIN -->
+<section id="chain">
+  <div class="req">B-1.3.1 · Value chain map <span class="sct">· Scorecard: Desirability, Feasibility</span></div>
+  <h2>The vehicle life cycle in 18 stages</h2>
+  <p class="point">18 stages, each scored from 4 to 20. Low scores are open to newcomers. Our lead wedge sits in the open stages after the sale.</p>
+  <div class="tiers">Totals out of 20:
+    <span class="pill open">4 to 8 · Open</span><span class="pill mid">9 to 12 · Contested</span><span class="pill locked">13 to 20 · Locked</span>
+    <span class="tag" style="color:var(--red);border-color:var(--red)">Maroon outline: stages where the lead wedge works</span>
+  </div>
+  <div class="flow" id="flow"></div>
+  <h3>Most open stages</h3>
+  <div class="spots" id="spots"></div>
+  <h3>What is driving growth</h3>
+  <ul class="brief">
+    <li>Vehicles are kept longer: 12.8 years on average<sup><a href="#s1">1</a></sup></li>
+    <li>Networks keep changing: 3G is gone and 4G is next<sup><a href="#s2">2</a></sup><sup><a href="#s4">4</a></sup></li>
+    <li>Software services are growing: $80B to $90B by 2035<sup><a href="#s5">5</a></sup></li>
+    <li>Rules now reach past the sale: UN R155 and right to repair<sup><a href="#s13">13</a></sup><sup><a href="#s12">12</a></sup></li>
+    <li>More software-defined vehicles reach second owners: 37.4M used sales a year<sup><a href="#s6">6</a></sup></li>
+  </ul>
+  <details class="more"><summary><b>Growth drivers in detail</b> <span>each driver explained, plus what could slow growth</span></summary><div class="in">
+<dl class="ps">
+    <div><dt>Vehicles are kept longer</dt><dd>The average vehicle on US roads is 12.8 years old, a record,<sup><a href="#s1">1</a></sup> so more vehicles outlive their software support and modem generation.</dd></div>
+    <div><dt>Fleets are starting to notice</dt><dd>A February 2026 fleet industry article expects software support to become "a major disclosure issue in wholesale and government fleets over the next five to 10 years."<sup><a href="#s31">31</a></sup></dd></div>
+    <div><dt>Networks keep changing</dt><dd>3G shutdowns in 2022 cut connected features on millions of vehicles,<sup><a href="#s2">2</a></sup><sup><a href="#s3">3</a></sup> and industry coverage has raised the same concern for 4G.<sup><a href="#s4">4</a></sup> Each network change creates a new wave of affected vehicles.</dd></div>
+    <div><dt>Software services are growing</dt><dd>BCG estimates software-driven services in the vehicle, including aftersales, at $80B to $90B by 2035.<sup><a href="#s5">5</a></sup></dd></div>
+    <div><dt>Rules extend responsibility past the sale</dt><dd>UN R155 expects cybersecurity management to cover vehicles after they are sold,<sup><a href="#s13">13</a></sup> and right-to-repair laws are reopening who can access vehicle data.<sup><a href="#s12">12</a></sup></dd></div>
+    <div><dt>Software-defined vehicles reach second owners</dt><dd>37.4 million used vehicles were sold in the US in 2024,<sup><a href="#s6">6</a></sup> so each year more connected vehicles change hands without their software history.</dd></div>
+    <div><dt>What could slow it</dt><dd>Carmakers control software access, public fleet budgets are tight, and willingness to pay is untested (H-05).</dd></div>
+  </dl>
+</div></details>
+  <ul class="brief">
+    <li><b>ADAS is out of scope as its own stage.</b> Its core software is safety-critical and built by carmakers and large suppliers.</li>
+    <li><b>Our skills fit the open stages:</b> decoding vehicle data from VINs, hands-on vehicle inspection, and our own vehicle's control software.</li>
+  </ul>
+  <details class="more"><summary><b>Where ADAS fits</b> <span>why it is out of scope and where it touches our focus</span></summary><div class="in">
+<div class="note"><b>Where ADAS fits.</b> Driver assistance features such as lane keeping and automatic emergency braking are software-defined, but we left ADAS out as its own stage. Its core software is safety-critical and is developed and validated by carmakers and their major suppliers, which is the same reason we rejected our V2X idea in the decision trail. ADAS does touch our focus in two places: features that depend on map or connectivity updates can degrade at end of support (L-17), and ADAS cameras and sensors need recalibration after some repairs (L-08 and L-09). <span class="tag">our read</span></div>
+</div></details>
+<details class="more"><summary><b>Where our skills fit</b> <span>team skills matched to specific stages</span></summary><div class="in">
+<div class="skills">
+    <div class="skill"><b>L-03, L-15, L-17</b><p>Connectivity, fleet replacement planning, and end of support. Our engineering coursework and MATLAB and Python experience apply to decoding vehicle specifications and hardware generations from VINs and public data, and to building the database behind W1.</p></div>
+    <div class="skill"><b>L-13</b><p>History and condition reports. One team member has hands-on vehicle inspection experience from a race shop internship, which applies to defining what a software condition check should cover (W2).</p></div>
+    <div class="skill"><b>L-02, L-04</b><p>Support windows and over-the-air updates. Our vehicle track is building a hybrid vehicle with its own control electronics, and Rose-Hulman previously worked with Stellantis in the Battery Workforce Challenge. This gives us context on how carmakers integrate and update vehicle software (W3).</p></div>
+  </div>
+</div></details>
+<details class="more"><summary><b>How we scored each stage</b> <span>four measures and the scores for all 18 stages</span></summary><div class="in">
+<p>We divided a vehicle's life into 18 stages. For each stage we list who participates, what success looks like, what protects current participants, and the main engineering pain points. Each stage is scored from 1 to 5 on four measures, using the same scale as SDV Explorer. A low score means a new entrant could get in, and a high score means current participants are well protected.</p>
+<div class="note"><b>A low score does not necessarily mean an opportunity is valuable.</b> A stage can be open because no one has secured it yet, or because no one is willing to pay for it. Independent repair scores low partly because shops are under financial pressure, which makes them a difficult customer. For this reason, willingness to pay is tested separately in the registry (H-05).</div>
+<p>These scores are our first estimates. Before Check-In, each team member will score the stages independently so we can compare results and record where we disagree.</p>
+  <div class="legend">
+    <div><b>VC · Value capture</b><span>Who keeps the profit? 1: the buyer sets the price. 5: profit protected by scarcity, patents, or certification.</span></div>
+    <div><b>SC · Switching cost</b><span>How hard is it to replace whoever does this? 1: a simple swap. 5: requires redesign and recertification.</span></div>
+    <div><b>DF · Differentiation</b><span>Does this shape what the driver notices? 1: the same everywhere. 5: defines the vehicle's character.</span></div>
+    <div><b>CL · Control leverage</b><span>Does owning this let you set rules for others? 1: no influence. 5: others design around you.</span></div>
+  </div>
+  
+  <div class="scroll"><table class="heat" id="heat">
+    <thead><tr><th>Stage</th><th>SDV layer</th><th style="text-align:center">VC</th><th style="text-align:center">SC</th><th style="text-align:center">DF</th><th style="text-align:center">CL</th><th style="text-align:right">Total</th></tr></thead><tbody></tbody>
+  </table></div>
+
+  
+</div></details>
+<details class="more"><summary><b>SDV layer definitions</b> <span>what each layer tag on the stage cards means</span></summary><div class="in">
+
+  <p class="sub">Each stage is tagged with the software-defined vehicle layer it depends on most. Some stages touch more than one layer.</p>
+  <div class="legend">
+    <div><b>Compute</b><span>The vehicle's computers and how much spare capacity they have for future software.</span></div>
+    <div><b>Connectivity</b><span>Cellular modems, networks, and telematics units that link the vehicle to the outside.</span></div>
+    <div><b>OTA</b><span>Over-the-air updates and the software support period.</span></div>
+    <div><b>Cybersecurity</b><span>Protecting the vehicle's software and data from attack across its life.</span></div>
+    <div><b>Data</b><span>Vehicle data and the services built on it: history, valuation, fleet records.</span></div>
+    <div><b>Features</b><span>Software features and subscriptions that can be turned on or off.</span></div>
+    <div><b>Diagnostics</b><span>The software and tools used to find and repair problems.</span></div>
+    <div><b>Hardware</b><span>Physical electronic modules and their reuse or recycling.</span></div>
+  </div>
+  
+</div></details>
+<details class="more"><summary><b>Stage details and engineering pain points</b> <span>who participates, what success looks like, what protects them</span></summary><div class="in">
+
+  <p class="sub">This table answers the questions in B-1.3.1: who performs well and how that is measured, what protects them, and the engineering pain points at each stage. On a phone, scroll the table sideways.</p>
+  <div class="scroll"><table class="detail" id="detail">
+    <thead><tr><th>Stage</th><th>SDV layer</th><th>Who participates</th><th>What success looks like</th><th>What protects them</th><th>Engineering pain points</th></tr></thead><tbody></tbody>
+  </table></div>
+
+  
+</div></details>
+<details class="more"><summary><b>Where the money is</b> <span>revenue pools and market figures</span></summary><div class="in">
+
+  <div class="pools">
+    <div class="pool"><b>Software-driven services, including aftersales</b><div class="fig">$80B to $90B by 2035</div><span>BCG's mobility ecosystem layer: charging, payments, entertainment, and aftersales.<sup><a href="#s5">5</a></sup></span></div>
+    <div class="pool"><b>Used vehicles sold in the US</b><div class="fig">37.4 million in 2024</div><span>19.9 million of these were retail sales.<sup><a href="#s6">6</a></sup></span></div>
+    <div class="pool"><b>S&amp;P Global Mobility (owner of CARFAX)</b><div class="fig">$1.6B revenue in 2024</div><span>Up about 8 percent from the prior year.<sup><a href="#s14">14</a></sup></span></div>
+    <div class="pool"><b>Snap-on repair information and diagnostics</b><div class="fig">$1.80B segment sales in 2024</div><span>Repair Systems &amp; Information Group.<sup><a href="#s16">16</a></sup></span></div>
+    <div class="pool"><b>Fleet telematics subscriptions</b><div class="fig">$15 to $70 per vehicle per month</div><span>A vendor pricing guide; this is a range, not a measured average.<sup><a href="#s8">8</a></sup></span></div>
+    <div class="pool"><b>US fleet vehicles</b><div class="fig">12.3M total, 3.15M government</div><span>2015 values, the most recent year in the federal table. To be updated.<sup><a href="#s7">7</a></sup></span></div>
+    <div class="pool gap"><b>Not yet sourced</b><div class="fig">Post-sale security monitoring, data access platforms, remanufactured modules, end-of-support services</div><span>We have not yet found reliable figures for these areas.</span></div>
+  </div>
+
+  
+</div></details>
+</section>
+
+<!-- CANVASES -->
+<section id="canvases">
+  <div class="req">B-1.3.2 · Incumbent business model analysis <span class="sct">· Scorecard: Viability</span></div>
+  <h2>How two incumbents make money today</h2>
+  <p class="point">Both incumbents sell trust built on data. Neither reports what is about to stop working in a vehicle's software.</p>
+  <div class="duo">
+    <div><h3>CARFAX</h3><ul class="brief">
+      <li><b>Sells:</b> vehicle history reports<sup><a href="#s15">15</a></sup></li>
+      <li><b>To:</b> used-car shoppers and dealers</li>
+      <li><b>Earns:</b> dealer subscriptions and report sales</li>
+      <li><b>Gap:</b> nothing on software condition <span class="tag">our read</span></li></ul></div>
+    <div><h3>Snap-on</h3><ul class="brief">
+      <li><b>Sells:</b> tools, diagnostics, and repair information<sup><a href="#s17">17</a></sup></li>
+      <li><b>To:</b> technicians and repair shops</li>
+      <li><b>Earns:</b> $1.80B in repair information and diagnostics (2024)<sup><a href="#s16">16</a></sup></li>
+      <li><b>Gap:</b> fixes what is broken now, not what will stop working <span class="tag">our read</span></li></ul></div>
+  </div>
+  <details class="more"><summary><b>Full CARFAX canvas</b> <span>all nine blocks, with citations</span></summary><div class="in">
+<p>We built practice Business Model Canvases for two companies at different stages of the value chain. CARFAX sells information about a vehicle's history (stage L-13). Snap-on sells tools, diagnostics, and repair information to technicians and repair shops (stage L-10). Numbered items are cited. Items labeled <span class="tag">our read</span> are our interpretation and will be checked in interviews.</p>
+<div class="bmc-wrap">
+    <div class="bmc-head"><h3>CARFAX</h3><p>Part of S&amp;P Global Mobility, which S&amp;P Global plans to separate into a standalone public company.<sup><a href="#s14">14</a></sup></p></div>
+    <div class="bmc">
+      <div class="blk kp"><h4>Key partners</h4><ul>
+        <li>US state and Canadian provincial motor vehicle agencies<sup><a href="#s15">15</a></sup></li>
+        <li>Auto auctions, police and fire departments<sup><a href="#s15">15</a></sup></li>
+        <li>Fleet management and rental companies<sup><a href="#s15">15</a></sup></li>
+        <li>"More than 151,000 data sources" in total<sup><a href="#s15">15</a></sup></li></ul></div>
+      <div class="blk ka"><h4>Key activities</h4><ul>
+        <li>Collecting records and matching them to VINs <span class="tag">our read</span></li>
+        <li>Selling reports and dealer subscriptions<sup><a href="#s15">15</a></sup></li></ul></div>
+      <div class="blk kr"><h4>Key resources</h4><ul>
+        <li>A database of "over 35 billion records"<sup><a href="#s15">15</a></sup></li>
+        <li>A brand that used-car shoppers recognize <span class="tag">our read</span></li></ul></div>
+      <div class="blk vp"><h4>Value proposition</h4><ul>
+        <li>Shows a used vehicle's history, such as accidents, title problems, and service records, before purchase<sup><a href="#s15">15</a></sup></li>
+        <li>Gives dealers a trust signal for their listings<sup><a href="#s15">15</a></sup></li>
+        <li><b>Not covered:</b> the condition of the vehicle's software or how long its connection will work <span class="tag">our read</span></li></ul></div>
+      <div class="blk cr"><h4>Customer relationships</h4><ul>
+        <li>Ongoing subscriptions with dealers<sup><a href="#s15">15</a></sup></li>
+        <li>One-time purchases by shoppers <span class="tag">our read</span></li></ul></div>
+      <div class="blk ch"><h4>Channels</h4><ul>
+        <li>CARFAX website and app</li>
+        <li>Free reports on dealer listings, paid for by the dealer<sup><a href="#s15">15</a></sup></li></ul></div>
+      <div class="blk cs"><h4>Customer segments</h4><ul>
+        <li>Used-car shoppers; hundreds of millions use CARFAX information each year<sup><a href="#s15">15</a></sup></li>
+        <li>Thousands of subscribing dealers<sup><a href="#s15">15</a></sup></li>
+        <li>Service providers, other businesses, and government<sup><a href="#s15">15</a></sup></li></ul></div>
+      <div class="blk co"><h4>Cost structure</h4><ul>
+        <li>Acquiring and licensing data from agencies and partners <span class="tag">our read</span></li>
+        <li>Technology to match and store records; consumer marketing <span class="tag">our read</span></li></ul></div>
+      <div class="blk rv"><h4>Revenue streams</h4><ul>
+        <li>Dealer subscriptions and paid shopper reports<sup><a href="#s15">15</a></sup></li>
+        <li>Reported within S&amp;P Global Mobility: $1.6B in 2024. CARFAX is not reported separately.<sup><a href="#s14">14</a></sup></li></ul></div>
+    </div>
+  </div>
+</div></details>
+<details class="more"><summary><b>Full Snap-on canvas</b> <span>all nine blocks, with citations</span></summary><div class="in">
+<div class="bmc-wrap">
+    <div class="bmc-head"><h3>Snap-on</h3><p>Public company. Figures are from its 2024 annual results and 10-K.<sup><a href="#s16">16</a></sup><sup><a href="#s17">17</a></sup></p></div>
+    <div class="bmc">
+      <div class="blk kp"><h4>Key partners</h4><ul>
+        <li>Franchisees operating about 4,700 routes worldwide, about 3,400 of them in the US<sup><a href="#s17">17</a></sup></li>
+        <li>Distributors for repair shop products<sup><a href="#s17">17</a></sup></li>
+        <li>Carmakers, as a source of repair data <span class="tag">our read</span></li></ul></div>
+      <div class="blk ka"><h4>Key activities</h4><ul>
+        <li>Developing diagnostic and repair information products<sup><a href="#s16">16</a></sup></li>
+        <li>Making tools; financing franchisees and their customers<sup><a href="#s17">17</a></sup></li></ul></div>
+      <div class="blk kr"><h4>Key resources</h4><ul>
+        <li>The Mitchell1 brand: "repair and service information, shop management systems and business services"<sup><a href="#s17">17</a></sup></li>
+        <li>The franchise route network<sup><a href="#s17">17</a></sup></li></ul></div>
+      <div class="blk vp"><h4>Value proposition</h4><ul>
+        <li>Diagnostic products and repair information that help technicians find and fix problems<sup><a href="#s17">17</a></sup></li>
+        <li>Tools delivered to technicians at their shops through franchise routes<sup><a href="#s17">17</a></sup></li>
+        <li><b>Risk from SDVs:</b> if carmakers restrict software access, shop-side diagnostics lose value <span class="tag">our read</span></li></ul></div>
+      <div class="blk cr"><h4>Customer relationships</h4><ul>
+        <li>Ongoing franchisee relationships with technicians and shop owners<sup><a href="#s17">17</a></sup></li>
+        <li>Installment sales and lease contracts through Snap-on Credit<sup><a href="#s17">17</a></sup></li></ul></div>
+      <div class="blk ch"><h4>Channels</h4><ul>
+        <li>Franchise routes<sup><a href="#s17">17</a></sup></li>
+        <li>Direct and distributor sales to repair shops and dealerships<sup><a href="#s17">17</a></sup></li></ul></div>
+      <div class="blk cs"><h4>Customer segments</h4><ul>
+        <li>Vehicle repair technicians and shop owners<sup><a href="#s17">17</a></sup></li>
+        <li>Owners and managers of independent repair shops and OEM dealerships<sup><a href="#s17">17</a></sup></li>
+        <li>Commercial and industrial customers<sup><a href="#s16">16</a></sup></li></ul></div>
+      <div class="blk co"><h4>Cost structure</h4><ul>
+        <li>Manufacturing, software and data development, franchise support <span class="tag">our read</span></li>
+        <li>Credit losses on financing <span class="tag">our read</span></li></ul></div>
+      <div class="blk rv"><h4>Revenue streams (2024)</h4><ul>
+        <li>Repair Systems &amp; Information Group: $1,797.9M<sup><a href="#s16">16</a></sup></li>
+        <li>Snap-on Tools Group: $1,989.2M; Commercial &amp; Industrial Group: $1,476.8M<sup><a href="#s16">16</a></sup></li>
+        <li>Financial Services revenue: $401.0M<sup><a href="#s16">16</a></sup></li></ul></div>
+    </div>
+  </div>
+</div></details>
+<details class="more"><summary><b>What the comparison shows</b> <span>three takeaways and our interview status</span></summary><div class="in">
+<div class="lesson">
+    <div><b>Both companies sell trust based on data.</b><span>CARFAX relies on its record database, and Snap-on relies on its repair information. Whoever holds reliable data about a vehicle's condition holds the customer relationship.</span></div>
+    <div><b>Neither covers software condition.</b><span>CARFAX reports a vehicle's past. Snap-on helps repair what is broken now. Neither reports what is about to stop working, which is the gap our wedges address.</span></div>
+    <div><b>Either could become a competitor.</b><span>Both could add a software condition feature. We need to understand why they have not done so yet, which is registry row H-04.</span></div>
+  </div>
+  <p class="sub"><b>Exploratory interviews:</b> we have contacted five SDV professionals on LinkedIn. As of Nov 9, one has said they are interested but has not followed up, and no conversations have taken place yet. Notes will be linked here after they do.</p>
+</div></details>
+</section>
+
+<!-- FEASIBILITY -->
+<section id="feasibility">
+  <div class="req">B-1.3.3 · Feasibility screening and engineering personas <span class="sct">· Scorecard: Feasibility, Desirability</span></div>
+  <h2>Where our team could add value</h2>
+  <p class="point">Fleet replacement planning is our lead position: it is open, we can test it locally, and it needs no carmaker permission.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Position</th><th>Verdict</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><b>Fleet replacement planning</b></td><td><span class="verdict hi">Lead (W1)</span></td><td>Open stage, local fleets, public data</td></tr>
+      <tr><td><b>Software condition reports</b></td><td><span class="verdict md">Later (W2)</span></td><td>Largest market, hardest data to get</td></tr>
+      <tr><td><b>Updates on older hardware</b></td><td><span class="verdict md">Test (W3)</span></td><td>Real pain, but the buyer is hard to reach</td></tr>
+      <tr><td><b>Independent repair, data platforms, remanufactured modules</b></td><td><span class="verdict lo">Not now</span></td><td>Low budgets, a strong incumbent, or hardware heavy</td></tr>
+    </tbody>
+  </table></div>
+  <details class="more"><summary><b>Full feasibility screen</b> <span>why each position is attractive and what our team brings</span></summary><div class="in">
+<p>We compared the most open stages with our team's capabilities. A position is included only if we can explain why our team in particular could succeed there.</p>
+<div class="scroll"><table style="min-width:760px">
+    <thead><tr><th>Position</th><th>Why it is attractive</th><th>What our team brings</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><b>Fleet replacement planning</b><br>L-15, with L-03 and L-17</td><td>The stage is open, buyers have budgets and plan years ahead, and the 3G shutdown showed the problem is real.<sup><a href="#s2">2</a></sup></td><td>We can decode vehicle specifications and hardware generations from public data, local public fleets are within reach, and no carmaker permission is needed.</td><td><span class="verdict hi">Lead (W1)</span></td></tr>
+      <tr><td><b>Software condition reports</b><br>L-13</td><td>The largest market: 19.9 million used retail sales a year.<sup><a href="#s6">6</a></sup> Recurrent has shown the model works for EV batteries.<sup><a href="#s10">10</a></sup></td><td>Vehicle inspection experience on the team, and data access platforms exist.<sup><a href="#s11">11</a></sup> CARFAX is a strong incumbent.</td><td><span class="verdict md">Later (W2)</span></td></tr>
+      <tr><td><b>Keeping updates working on older hardware</b><br>Inside L-02 and L-04</td><td>A real engineering burden inside carmakers.</td><td>Our vehicle track and Rose-Hulman's past work with Stellantis. The buyer, however, is deep inside the carmaker.</td><td><span class="verdict md">Test (W3)</span></td></tr>
+      <tr><td><b>Independent repair</b><br>L-09</td><td>Very open, and interviews are easy to arrange.</td><td>Shops are under financial pressure and have little budget for new tools.</td><td><span class="verdict lo">Not now</span></td></tr>
+      <tr><td><b>Data access platforms</b><br>L-11</td><td>Open and growing.</td><td>Smartcar already covers more than 40 brands.<sup><a href="#s11">11</a></sup> Competing would require scale we do not have.</td><td><span class="verdict lo">Not now</span></td></tr>
+      <tr><td><b>Remanufactured modules</b><br>L-12</td><td>Open.</td><td>Hardware and capital intensive, and far from SDV software.</td><td><span class="verdict lo">Not now</span></td></tr>
+    </tbody>
+  </table></div>
+</div></details>
+  <h3>Personas</h3>
+  <div class="personas">
+    <div class="persona" style="border:2px solid var(--red)"><span class="role">Main persona for W1</span><b>Fleet shop supervisor or telematics technician</b><dl><dt>Pain</dt><dd>Diagnoses connected-system failures by hand, one vehicle at a time</dd><dt>We will ask</dt><dd>"Walk me through the last time a connected system stopped working."</dd></dl></div><div class="persona"><span class="role">Buyer for W1</span><b>Public fleet manager</b><dl><dt>Pain</dt><dd>Learns about failures after they happen, so costs are unplanned</dd><dt>We will ask</dt><dd>"Which vehicles lost something when 3G shut down?"</dd></dl></div><div class="persona"><span class="role">Buyer for W2</span><b>Used car dealer or auction inspector</b><dl><dt>Pain</dt><dd>Cannot see software condition when pricing a vehicle</dd><dt>We will ask</dt><dd>"Has a vehicle's technology ever changed your offer?"</dd></dl></div><div class="persona"><span class="role">User for W3</span><b>Carmaker validation engineer</b><dl><dt>Pain</dt><dd>Every update must work on many older hardware versions</dd><dt>We will ask</dt><dd>"How many older versions must an update support?"</dd></dl></div>
+  </div>
+  <details class="more"><summary><b>Full personas</b> <span>what each one is measured on and what would help</span></summary><div class="in">
+<div class="personas">
+    <div class="persona" style="border:2px solid var(--red)"><span class="role">Main persona for W1</span><b>Fleet shop supervisor or telematics technician</b><dl>
+      <dt>Measured on</dt><dd>Vehicle uptime, repair turnaround, and keeping connected systems such as tracking, remote diagnostics, and crash notification working</dd>
+      <dt>Current problem</dt><dd>When a connected system fails, identifies the installed modem and telematics hardware by hand and works out whether the cause is a network shutdown, an end of support, or a hardware fault, one vehicle at a time</dd>
+      <dt>What would help</dt><dd>A VIN-level list of each vehicle's connected hardware, the network it depends on, when service or support ends, and the fix: update, module swap, add-on retrofit, or replace</dd>
+      <dt>Question we will ask</dt><dd>"Walk me through the last time a connected system stopped working on one of your vehicles. How did you find out what hardware it had, and what fixed it?"</dd></dl></div>
+    <div class="persona"><span class="role">Buyer for W1</span><b>Public fleet manager</b><dl>
+      <dt>Measured on</dt><dd>Vehicle uptime, staying within budget, and replacement plans that hold up</dd>
+      <dt>Current problem</dt><dd>Learns about connected-system failures after they happen, so the costs are unplanned</dd>
+      <dt>What would help</dt><dd>A costed list from the shop that fits the yearly replacement budget</dd>
+      <dt>Question we will ask</dt><dd>"Which of your vehicles lost something when 3G shut down, and when did you find out?"</dd></dl></div>
+    <div class="persona"><span class="role">Buyer for W2</span><b>Used car dealer or auction inspector</b><dl>
+      <dt>Measured on</dt><dd>Margin per vehicle and avoiding bad purchases</dd>
+      <dt>Current problem</dt><dd>Cannot see software or connectivity condition when pricing a vehicle</dd>
+      <dt>What would help</dt><dd>A quick, trustworthy report they can share with buyers</dd>
+      <dt>Question we will ask</dt><dd>"Has a vehicle's technology ever changed what you were willing to pay for it?"</dd></dl></div>
+    <div class="persona"><span class="role">User for W3</span><b>Carmaker validation engineer</b><dl>
+      <dt>Measured on</dt><dd>Releases that do not break vehicles already on the road</dd>
+      <dt>Current problem</dt><dd>Each update has to work across many older hardware variants</dd>
+      <dt>What would help</dt><dd>A faster way to know which older variants an update affects</dd>
+      <dt>Question we will ask</dt><dd>"How many older hardware versions does a new update need to support?"</dd></dl></div>
+  </div>
+</div></details>
+</section>
+
+<!-- WEDGES -->
+<section id="wedges">
+  <div class="req">B-1.3.4 · Candidate wedge hypotheses <span class="sct">· Scorecard: Desirability, Feasibility, Viability, Process</span></div>
+  <h2>Three wedge hypotheses</h2>
+  <p class="point">Three wedges with three different buyers. W1 leads. W3 is the weakest.</p>
+  <div class="wedge lead">
+    <div class="wedge-head"><span class="t">Lead</span><h3>W1 · Software and connectivity audit for public fleets</h3></div>
+    <ul class="brief"><li><b>What it is:</b> upload VINs and get each vehicle's connected hardware, when it loses service, and the fix</li><li><b>For:</b> fleet technicians (users) and fleet managers (buyers)</li><li><b>Weakest assumption (H-03):</b> a VIN plus public data is enough to know this</li><li><b>Market, our estimate:</b> TAM about $147M to $295M a year; SAM about $38M to $76M a year</li><li><b>Test:</b> five technician interviews and a 25-VIN check</li></ul>
+    <details class="more"><summary><b>W1 details</b> <span>full claim, engineering pain point, market math, and what would disprove it</span></summary><div class="in">
+<p class="claim">We believe fleet shop supervisors and telematics technicians at public and utility fleets would use, and their fleets would pay for, a report that identifies each vehicle's connected hardware, when it will lose service or software support, and how to fix it, because today they work this out by hand one vehicle at a time and the 3G shutdown likely affected some of their vehicles.</p>
+    <dl class="wgrid">
+      <div><dt>Persona and pain</dt><dd>Main persona: fleet shop supervisor or telematics technician. When a connected system fails, they identify the installed hardware and work out the cause and the fix by hand, one vehicle at a time. Buyer: the fleet manager who approves the budget.</dd></div>
+      <div><dt>Engineering pain point</dt><dd>The information needed to diagnose and plan a fix, such as modem generation, network type, telematics unit part number, software support period, and available retrofit modules, is spread across build specifications, manuals, and service bulletins that vary by make, model, and year. We have not found a tool that ties it to the VIN.</dd></div>
+      <div><dt>Value proposition</dt><dd>Upload a list of VINs and receive, for each vehicle, its connected hardware, what will stop working and when, and the recommended fix: software update, module replacement, add-on retrofit, or replacement. The shop plans the work and the manager gets a costed list.</dd></div>
+      <div><dt>Why now</dt><dd>3G networks have already shut down,<sup><a href="#s2">2</a></sup> industry coverage has raised the same concern for 4G,<sup><a href="#s4">4</a></sup> and the average vehicle on the road is 12.8 years old.<sup><a href="#s1">1</a></sup> In 2018, Trimble's John Binder said some network changes "absolutely require a rip-out-and-replace."<sup><a href="#s18">18</a></sup></dd></div>
+    </dl>
+    <div class="weak"><b>Weakest technical assumption (H-03):</b> that a vehicle's modem generation and software support status can be determined from its VIN and public data alone. A second assumption (H-04) is that telematics vendors do not already provide this. Geotab's 3G guidance asked fleets to "make an inventory of all your 3G telematics devices" and, as far as we could find, did not address modems installed by the carmaker.<sup><a href="#s9">9</a></sup> A related gap: carmakers rarely publish when software support ends, and no law sets a support period for cars.<sup><a href="#s32">32</a></sup> W1 would show network shutdown dates, which carriers announce publicly, as firm dates, and software support end as a labeled estimate (H-11). NHTSA's free VIN decoder only contains what carmakers file, so trim and equipment details are often blank.<sup><a href="#s35">35</a></sup></div>
+    <div class="math">
+      <b>Market size (first estimate)</b><br>
+      Price assumption: $1 to $2 per vehicle per month ($12 to $24 per year). This is our estimate, not a sourced figure. We set it well below the $15 to $70 per month that fleets pay for full telematics,<sup><a href="#s8">8</a></sup> because this is a much smaller product.<br>
+      <b>TAM:</b> 12.28 million US fleet vehicles<sup><a href="#s7">7</a></sup> × $12 to $24 = <b>about $147M to $295M per year</b><br>
+      <b>SAM:</b> 3.15 million government fleet vehicles<sup><a href="#s7">7</a></sup> × $12 to $24 = <b>about $38M to $76M per year</b><br>
+      Known gaps: the fleet counts are from 2015, utility fleets are not reported separately, and we have not yet sized a first target market such as Indiana public fleets.
+    </div>
+    <dl class="wgrid">
+      <div><dt>How we will test it</dt><dd>Interview five fleet shop supervisors or technicians, starting in Indiana, and ask them to walk through their last connected-system failure and what happened in 2022. Then complete a free manual audit for one fleet and observe whether the shop uses it.</dd></div>
+      <div><dt>What would disprove it</dt><dd>Technicians already get this from dealer or telematics vendor tools, finding it takes them little time, or the fleet is not willing to pay for it.</dd></div>
+    </dl>
+</div></details>
+  </div>
+  <div class="wedge">
+    <div class="wedge-head"><span class="t alt">Second</span><h3>W2 · Software condition report for used vehicles</h3></div>
+    <ul class="brief"><li><b>What it is:</b> a CARFAX-style report on a used vehicle's software condition</li><li><b>For:</b> used-car dealers and auctions</li><li><b>Weakest assumption (H-07):</b> software condition can be read without carmaker cooperation</li><li><b>Market, our estimate:</b> TAM about $100M to $199M a year</li></ul>
+    <details class="more"><summary><b>W2 details</b> <span>full claim, engineering pain point, market math, and test</span></summary><div class="in">
+<p class="claim">We believe used-car dealers and auctions would pay for a report on a vehicle's software condition, because we expect it affects a vehicle's value and they cannot see it today.</p>
+    <div class="weak"><b>Weakest technical assumption (H-07):</b> that software condition can be read from outside the vehicle without carmaker cooperation. There are early signs this is possible: Smartcar's API covers more than 40 brands and lists Recurrent as a customer,<sup><a href="#s11">11</a></sup> and Recurrent already sells battery health reports for used EVs.<sup><a href="#s10">10</a></sup> Access is tightening on some brands: since the 2018 model year, Chrysler, Dodge, Jeep, and Ram vehicles have a secure gateway that blocks deeper aftermarket diagnostics unless the shop registers through AutoAuth.<sup><a href="#s33">33</a></sup> In the EU, the Data Act now gives users the right to access and share their vehicle's raw data.<sup><a href="#s34">34</a></sup></div>
+    <dl class="wgrid">
+      <div><dt>Persona and pain</dt><dd>Used car dealer or auction inspector: cannot see software or connectivity condition when pricing a vehicle.</dd></div>
+      <div><dt>Engineering pain point</dt><dd>Software version, support status, and features that no longer work are not visible during a standard inspection.</dd></div>
+      <div><dt>Value proposition</dt><dd>A CARFAX-style report for software: whether it is still supported, which features have stopped working, and how long the connection will last.</dd></div>
+      <div><dt>Builds on W1</dt><dd>The hardware and support database from W1 would form the core of this report.</dd></div>
+    </dl>
+    <div class="math">
+      <b>Market size (first estimate)</b><br>
+      <b>TAM:</b> 19.9 million US used retail sales in 2024<sup><a href="#s6">6</a></sup> × $5 to $10 per report (our assumption, paid by the dealer) = <b>about $100M to $199M per year</b><br>
+      <b>SAM:</b> the share of these vehicles with connected, updatable software. Not yet sourced.
+    </div>
+    <dl class="wgrid">
+      <div><dt>How we will test it</dt><dd>Interview five dealers and auction inspectors, and attempt to read software data from three different brands.</dd></div>
+      <div><dt>What would disprove it</dt><dd>Software condition does not affect prices, or the data cannot be read without carmaker cooperation.</dd></div>
+    </dl>
+</div></details>
+  </div>
+  <div class="wedge">
+    <div class="wedge-head"><span class="t alt">Third</span><h3>W3 · Testing updates against older hardware</h3></div>
+    <ul class="brief"><li><b>What it is:</b> a tool showing which older hardware versions an update affects</li><li><b>For:</b> carmaker validation engineers</li><li><b>Weakest assumption:</b> we can get enough information about carmaker hardware and processes</li><li><b>Market:</b> not yet sized</li></ul>
+    <details class="more"><summary><b>W3 details</b> <span>full claim, engineering pain point, and why we kept it</span></summary><div class="in">
+<p class="claim">We believe carmaker validation teams spend significant time making sure each update still works on older hardware, and that they would use a tool showing which hardware variants an update affects.</p>
+    <div class="weak"><b>Weakest technical assumption:</b> that we can obtain enough information about carmakers' hardware variants and validation process to design anything useful. We currently have no access path other than sponsor contacts.</div>
+    <dl class="wgrid">
+      <div><dt>Persona and pain</dt><dd>Carmaker validation engineer: each update must work across a growing number of older hardware variants.</dd></div>
+      <div><dt>Engineering pain point</dt><dd>Each model year adds hardware variants to the road, and every update has to be checked against them.</dd></div>
+      <div><dt>Why we kept it</dt><dd>It keeps a connection to the engineering work our team first considered and relates to our own vehicle's software.</dd></div>
+      <div><dt>Market size</dt><dd>Not yet sized. It would require the number of variants a carmaker supports, validation hours per update, and cost per hour.</dd></div>
+    </dl>
+</div></details>
+  </div>
+  <h3>Why these three, and which is weakest</h3>
+  <ul class="brief">
+    <li>Each has a different buyer, so disproving one does not end the project.</li>
+    <li><b>W3 is weakest:</b> its buyer is the hardest to reach and its market is not sized.</li>
+  </ul>
+  <details class="more"><summary><b>Our full reasoning</b> <span>how we chose the wedges and how market sizes are calculated</span></summary><div class="in">
+<p>Each wedge is written as a claim that could be proven false, along with the test that would decide it. Market sizes are calculated bottom-up from cited counts and from prices that we have labeled as our own assumptions.</p>
+<p>We chose these three wedges because each targets a different buyer (fleets, used-car sellers, and carmakers) and tests a different part of the problem, so disproving one does not end the project. W1 leads because we can test it locally and without carmaker data. <b>W3 is our weakest wedge:</b> its buyer works deep inside carmakers, we cannot yet estimate its market size, and our only route to validation engineers is through sponsor contacts.</p>
+</div></details>
+  <h3>Our gaps and the action for each</h3>
+  <div class="scroll"><table class="wide" style="min-width:0">
+    <thead><tr><th>Biggest gaps</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>No interviews completed yet</td><td>Visit Rose-Hulman Facilities in person, then call Public Safety and two local fleets</td></tr>
+      <tr><td>H-03 is untested</td><td>Run the 25-VIN test</td></tr>
+      <tr><td>W1 pricing is our assumption</td><td>Ask about budget lines in fleet interviews</td></tr>
+      <tr><td>Support end dates are rarely public</td><td>Build estimates and check them against vehicles that lost service in 2022</td></tr>
+    </tbody>
+  </table></div>
+  <details class="more"><summary><b>All gaps and actions</b> <span>every gap with its owner and target date</span></summary><div class="in">
+<p class="sub">Owner codes follow the team registry: PL is the PIT lead, A is market mapping, B is interviews and outreach, and C is feasibility and the registry. Target dates are proposals for the team to confirm.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Gap</th><th>Action</th><th>Owner</th><th>Target date</th></tr></thead>
+    <tbody>
+      <tr><td>No interviews completed yet; one call attempted (Nov 8, no answer)</td><td>Visit Rose-Hulman Facilities in person, then call Public Safety and two city or county fleets</td><td>B</td><td class="num">Nov 12</td></tr>
+      <tr><td>Value chain scores are one person's estimates</td><td>Each member scores all 18 stages independently; compare and record disagreements</td><td>PL</td><td class="num">Nov 5</td></tr>
+      <tr><td>Fleet vehicle counts are from 2015</td><td>Replace with current Fleet Fact Book or Indiana state data</td><td>A</td><td class="num">Nov 5</td></tr>
+      <tr><td>Companies in the value chain lack individual citations</td><td>Add a source link for each company placement</td><td>A</td><td class="num">Nov 9</td></tr>
+      <tr><td>W1's core assumption (H-03) is untested</td><td>Run the 25-VIN test</td><td>C</td><td class="num">Nov 9</td></tr>
+      <tr><td>W1 pricing is our assumption</td><td>Ask about budget lines during fleet interviews (H-05)</td><td>B</td><td class="num">Nov 12</td></tr>
+      <tr><td>W3 has no market size and no access path</td><td>Ask sponsor contacts for one introduction to a validation engineer</td><td>PL</td><td class="num">Nov 12</td></tr>
+      <tr><td>No written data handling policy</td><td>Write a one-page policy covering what fleet data we collect, store, and delete</td><td>C</td><td class="num">Nov 12</td></tr>
+      <tr><td>Software support end dates are rarely public</td><td>Build estimates from public signals and check them against vehicles that lost service in 2022 (H-11)</td><td>C</td><td class="num">Dec 3</td></tr>
+      <tr><td>W2's serviceable market is not sized</td><td>Find the share of used vehicles with connected, updatable software</td><td>A</td><td class="num">Dec 3</td></tr>
+    </tbody>
+  </table></div>
+</div></details>
+
+
+  <details class="more"><summary><b>If W1 is validated: product path</b> <span>four steps from a manual audit to data partnerships</span></summary><div class="in">
+
+  <ol class="path">
+    <li><span><b>Manual audit.</b> Complete the audit in a spreadsheet for one local fleet at no cost. If the fleet acts on it, that is our first evidence of value.</span></li>
+    <li><span><b>Web tool.</b> Fleets upload VINs and receive the ranked report, with a yearly subscription priced per vehicle.</span></li>
+    <li><span><b>Used-vehicle reports (W2).</b> Offer the same database to dealers, auctions, and leasing companies.</span></li>
+    <li><span><b>Data partnerships.</b> Insurers and leasing companies could use the data to estimate future vehicle values.</span></li>
+  </ol>
+</div></details>
+</section>
+
+<!-- TESTS AND OUTREACH -->
+<section id="tests">
+  <div class="req">Next tests and outreach pipeline <span class="sct">· Scorecard: Process</span></div>
+  <h2>Next tests and outreach plan</h2>
+  <p class="point">We test in order: is the problem real, can we build it, and will someone pay.</p>
+  <h3>Test plan</h3>
+  <div class="steps">
+    <div><b>1. Is the problem real?</b><span>Interviews with fleet technicians (H-01, H-02)</span></div>
+    <div><b>2. Can we build it?</b><span>25-VIN test (H-03)</span></div>
+    <div><b>3. Will anyone pay?</b><span>Vendor check and budget questions (H-04, H-05)</span></div>
+  </div>
+  <details class="more"><summary><b>Full test plan</b> <span>seven tests in order, with evidence sources</span></summary><div class="in">
+<div class="scroll"><table class="wide">
+    <thead><tr><th>Order</th><th>Type</th><th>What we will test</th><th>Evidence source</th><th>Registry row</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Desirability</td><td>Fleet technicians cannot identify each vehicle's connected hardware and its end date without looking it up by hand</td><td>Interviews with fleet shop supervisors and technicians</td><td>H-01</td></tr>
+      <tr><td>2</td><td>Desirability</td><td>The 3G shutdown caused cost or lost features in factory-installed systems</td><td>The same interviews, asking for specific past examples</td><td>H-02</td></tr>
+      <tr><td>3</td><td>Desirability</td><td>Used-car dealers would adjust prices for software condition</td><td>Interviews with dealers and auction inspectors</td><td>H-06</td></tr>
+      <tr><td>4</td><td>Feasibility</td><td>Modem generation and support status can be determined from a VIN and public data</td><td>25-VIN test checked against owner manuals and dealer information</td><td>H-03</td></tr>
+      <tr><td>5</td><td>Feasibility</td><td>Software condition can be read from outside the vehicle</td><td>Attempted data reads from three brands using public tools or platforms</td><td>H-07</td></tr>
+      <tr><td>6</td><td>Viability</td><td>Telematics vendors and history report companies do not already cover this</td><td>Vendor product documentation and questions to two fleet users</td><td>H-04</td></tr>
+      <tr><td>7</td><td>Viability</td><td>Fleets would pay $12 to $24 per vehicle per year</td><td>Budget questions during fleet interviews</td><td>H-05</td></tr>
+    </tbody>
+  </table></div>
+</div></details>
+
+  <h3>Outreach status, as of Nov 9</h3>
+  <div class="facts">
+    <div class="fact"><div class="n">1</div><span>fleet call attempted (Rose-Hulman Facilities, Nov 8, no answer)</span></div>
+    <div class="fact"><div class="n">0</div><span>conversations completed. Target was 3 by Nov 12.</span></div>
+    <div class="fact"><div class="n">5</div><span>SDV professionals contacted on LinkedIn</span></div>
+    <div class="fact"><div class="n">1</div><span>interested, but has not followed up</span></div>
+  </div>
+  <p><b>Next:</b> visit Rose-Hulman Facilities in person, then Public Safety, then city and county fleets.</p>
+  <details class="more"><summary><b>Full outreach pipeline</b> <span>13 organizations with persona, wedge, method, and status</span></summary><div class="in">
+<p>Each contact is matched to the persona it represents and the wedge it tests. All are public offices or businesses with published contact information. We list organizations and roles here; names and direct numbers are kept in our outreach notes.</p>
+<div class="scroll"><table class="wide">
+    <thead><tr><th>Organization</th><th>Persona</th><th>Wedge</th><th>How we will reach them</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Rose-Hulman Facilities Operations<sup><a href="#s20">20</a></sup></td><td>Shop supervisor; fleet manager</td><td>W1</td><td>Phone call to the director's office, then an in-person visit</td><td>Called Nov 8, could not reach; visiting in person next</td></tr>
+      <tr><td>Rose-Hulman Public Safety<sup><a href="#s30">30</a></sup></td><td>Fleet manager</td><td>W1</td><td>Visit or call the Public Safety office; ask who maintains its vehicles</td><td>Not yet contacted</td></tr>
+      <tr><td>Vigo County School Corporation, Transportation<sup><a href="#s21">21</a></sup></td><td>Shop supervisor; fleet manager</td><td>W1</td><td>Phone call, then email</td><td>Not yet contacted</td></tr>
+      <tr><td>City of Terre Haute Street Department<sup><a href="#s22">22</a></sup></td><td>Fleet manager or shop supervisor</td><td>W1</td><td>Phone call; ask who maintains city vehicles</td><td>Not yet contacted</td></tr>
+      <tr><td>Terre Haute Transit Utility<sup><a href="#s23">23</a></sup></td><td>Fleet manager or shop supervisor</td><td>W1</td><td>Phone call</td><td>Not yet contacted</td></tr>
+      <tr><td>Vigo County Highway Department<sup><a href="#s24">24</a></sup></td><td>Fleet manager or shop supervisor</td><td>W1</td><td>Phone call; confirm number on county website</td><td>Not yet contacted</td></tr>
+      <tr><td>Indiana State University, University Fleet Management<sup><a href="#s25">25</a></sup></td><td>Shop supervisor; fleet manager</td><td>W1</td><td>Phone call to Facilities Management</td><td>Not yet contacted</td></tr>
+      <tr><td>Duke Energy Indiana, CenterPoint Energy, Indiana American Water<sup><a href="#s26">26</a></sup></td><td>Fleet manager</td><td>W1</td><td>LinkedIn, starting with Rose-Hulman alumni</td><td>Not yet contacted</td></tr>
+      <tr><td>Mace Ford, commercial sales<sup><a href="#s27">27</a></sup></td><td>Dealer with fleet customers</td><td>W1, W2</td><td>Phone call or visit</td><td>Not yet contacted</td></tr>
+      <tr><td>Fuson Automotive, used vehicles<sup><a href="#s28">28</a></sup></td><td>Used car dealer</td><td>W2</td><td>Phone call or visit</td><td>Not yet contacted</td></tr>
+      <tr><td>Auto House<sup><a href="#s29">29</a></sup></td><td>Used car dealer</td><td>W2</td><td>Phone call or visit</td><td>Not yet contacted</td></tr>
+      <tr><td>Stellantis sponsor contacts</td><td>Carmaker validation engineer</td><td>W3</td><td>Through team sponsor channels</td><td>Not yet contacted</td></tr>
+      <tr><td>Five SDV industry professionals</td><td>Exploratory, for industry context</td><td>All</td><td>LinkedIn</td><td>All five contacted; one said they are interested but has not followed up; no conversations yet</td></tr>
+    </tbody>
+  </table></div>
+</div></details>
+<details class="more"><summary><b>Outreach plan and how we conduct interviews</b> <span>our plan, Studio 2 requirement, and interview ground rules</span></summary><div class="in">
+<p><b>Status as of Nov 9:</b> one fleet call attempted (Rose-Hulman Facilities, Nov 8, no answer), no fleet conversations completed, five SDV professionals contacted with one interested, and no other contacts called yet.</p>
+  <p><b>Plan:</b> we are starting on our own campus, with an in-person visit to Rose-Hulman Facilities Operations and then Public Safety, before moving to city and county fleets. Our target was three completed conversations by Nov 12 (H-10), and we are behind it. Studio 2 requires at least half of outreach to come from our own effort rather than introductions; every contact above except the sponsor contacts was found independently.</p>
+  <p><b>How we conduct interviews:</b> we introduce ourselves as students, state that we are not selling anything, ask permission before taking notes or quoting anyone, ask about past events rather than hypothetical situations, and share our findings with anyone who requests them.</p>
+</div></details>
+</section>
+
+<!-- SOCIETY -->
+<section id="society">
+  <div class="req">Innovation in society <span class="sct">· Scorecard: Society</span></div>
+  <h2>Safety, security, privacy, fairness, and environmental impact</h2>
+  <dl class="society">
+    <div><dt>Safety</dt><dd>Losing a feature such as crash notification is a safety risk. W1 makes these losses visible early and changes nothing on the vehicle.</dd></div>
+    <div><dt>Security</dt><dd>Vehicles past end of support stop getting security patches. The audit flags them.</dd></div>
+    <div><dt>Privacy</dt><dd>We collect only VINs and public specifications, share nothing, and delete on request. Policy not yet written.</dd></div>
+    <div><dt>Fairness</dt><dd>Later owners likely carry the cost of lost features. This is our assumption, not yet sourced.</dd></div>
+    <div><dt>Environment</dt><dd>Planned retrofits can avoid replacing vehicles early. Not yet quantified.</dd></div>
+    <div><dt>Data we use</dt><dd>Public information only. No OEM data.</dd></div>
+  </dl>
+  <details class="more"><summary><b>Full society section</b> <span>detail and sources for each item</span></summary><div class="in">
+<p>This section lists the effects our wedges could have beyond the customer, along with the gaps we have not yet addressed.</p>
+  <dl class="society">
+    <div><dt>Safety</dt><dd>When 3G networks shut down, some vehicles lost safety-related connected features.<sup><a href="#s3">3</a></sup> A vehicle that loses a feature such as automatic crash notification without warning is a risk to its occupants. W1 is intended to make these losses visible in advance. It does not change how any vehicle operates.</dd></div>
+    <div><dt>Security</dt><dd>A vehicle that no longer receives software updates also stops receiving security patches. UN R155 requires carmakers to manage cybersecurity across a vehicle's life,<sup><a href="#s13">13</a></sup> but owners of unsupported vehicles may not know when that coverage ends. Our audit could flag vehicles past end of support so fleets can decide whether to keep them connected.</dd></div>
+    <div><dt>Privacy</dt><dd>W1 uses VINs and public specification data. A fleet's vehicle list can reveal operational information, so we would collect only what the audit requires, not share it, and delete it on request. W2 would involve privately owned vehicles and would require clear owner consent before any vehicle data is read. Gap: we have not yet written a data handling policy.</dd></div>
+    <div><dt>Fairness</dt><dd>We expect that later owners of a vehicle are more likely to be buyers with smaller budgets, and they would bear the cost of lost features without advance notice. This is our assumption and is not yet sourced. If it holds, W2 could help these buyers make informed decisions.</dd></div>
+    <div><dt>Environment</dt><dd>Vehicles replaced early because their software or connectivity has ended become waste sooner than their mechanical condition requires. Better planning could favor retrofits over replacement where that is practical. We have not quantified this effect.</dd></div>
+    <div><dt>Data we use</dt><dd>This portfolio uses only public information. No OEM-provided or OEM-sensitive data appears in it.</dd></div>
+  </dl>
+</div></details>
+</section>
+
+<!-- REGISTRY -->
+<section id="registry">
+  <div class="req">Assumptions and Hypothesis Registry <span class="sct">· Scorecard: Process</span></div>
+  <h2>Assumptions we are tracking</h2>
+  <h3>The assumptions that matter most</h3>
+  <ul class="top4">
+    <li><b>H-03:</b> a VIN plus public data is enough to identify each vehicle's connected hardware and support status. If not, W1 needs carmaker data.</li>
+    <li><b>H-01:</b> fleet technicians cannot answer this today without looking up each vehicle by hand.</li>
+    <li><b>H-11:</b> when carmakers do not publish a support end date, we can estimate one from public signals.</li>
+    <li><b>H-05:</b> a public fleet would pay $12 to $24 per vehicle per year.</li>
+  </ul>
+  <div class="callout"><p><b>Micro-Learning 1 (H-03):</b> can a VIN and public data identify a vehicle's connected hardware and support status? We will test this on 25 real VINs.</p></div>
+  <details class="more"><summary><b>Full registry</b> <span>11 assumptions with pass/fail criteria and revisit triggers</span></summary><div class="in">
+<p>These rows use the organizers' column names from B-4.3.1. Direction and Source remain blank until we have evidence. IDs should be renumbered to match the team sheet.</p>
+<div class="scroll"><table class="reg">
+    <thead><tr><th>ID</th><th>Wedge</th><th>Hypothesis</th><th>Type</th><th>Importance</th><th>Confidence</th><th>Pass/fail criteria</th><th>Direction</th><th>Source / evidence</th><th>Revisit trigger</th></tr></thead>
+    <tbody>
+      <tr><td>H-01</td><td>W1</td><td>We believe fleet shop supervisors and telematics technicians cannot say, by VIN, which connected hardware each vehicle has and when it will lose service, without looking each vehicle up by hand.</td><td>Desirability</td><td>High</td><td>To-source</td><td>3 of 5 technicians or supervisors cannot answer for their own fleet</td><td class="blank">none yet</td><td class="blank">none yet</td><td>After first 3 fleet interviews</td></tr>
+      <tr><td>H-02</td><td>W1</td><td>We believe the 3G shutdown caused fleets unplanned cost or lost features in factory-installed systems, not only in add-on trackers.</td><td>Desirability</td><td>High</td><td>Estimate</td><td>2 of 4 fleet staff describe a specific case</td><td class="blank">none yet</td><td class="blank">Press reports exist<sup><a href="#s2">2</a></sup>; fleet cases needed</td><td>After first 3 fleet interviews</td></tr>
+      <tr><td>H-03</td><td>W1</td><td>We believe a vehicle's modem generation and support status can be determined from its VIN plus public data, without carmaker cooperation.</td><td>Feasibility</td><td>High</td><td>To-source</td><td>Correct for 20 of 25 sample vehicles, checked against manuals or dealers</td><td class="blank">none yet</td><td class="blank">none yet</td><td>After the 25-VIN test</td></tr>
+      <tr><td>H-04</td><td>W1</td><td>We believe telematics vendors and history report companies do not already report on factory modems and software support.</td><td>Viability</td><td>High</td><td>Estimate</td><td>No major vendor offers it, confirmed in product documentation and by 2 fleet users</td><td class="blank">none yet</td><td>Geotab's 3G guide covered only telematics devices<sup><a href="#s9">9</a></sup>; a Feb 2026 fleet industry article on software support named no tool that tracks it<sup><a href="#s31">31</a></sup></td><td>Before Studio 1 (Dec 3)</td></tr>
+      <tr><td>H-05</td><td>W1</td><td>We believe a public fleet would pay $12 to $24 per vehicle per year.</td><td>Viability</td><td>Med</td><td>Estimate</td><td>2 of 5 fleet managers name a price in range or an existing budget line</td><td class="blank">none yet</td><td class="blank">none yet</td><td>After 5 fleet interviews</td></tr>
+      <tr><td>H-06</td><td>W2</td><td>We believe used-car dealers would change their offer if they knew a vehicle's software condition.</td><td>Desirability</td><td>Med</td><td>To-source</td><td>3 of 5 dealers or inspectors say yes and give an example</td><td class="blank">none yet</td><td class="blank">none yet</td><td>If W1 is validated</td></tr>
+      <tr><td>H-07</td><td>W2</td><td>We believe software condition can be read from outside the vehicle without carmaker cooperation.</td><td>Feasibility</td><td>High</td><td>Estimate</td><td>Read software version or support status from 3 brands</td><td class="blank">none yet</td><td>Smartcar covers 40+ brands<sup><a href="#s11">11</a></sup></td><td>If W1 is validated</td></tr>
+      <tr><td>H-08</td><td>W3</td><td>We believe carmaker validation engineers spend significant time keeping updates compatible with older hardware.</td><td>Desirability</td><td>Med</td><td>To-source</td><td>2 of 3 engineers estimate hours or describe a case</td><td class="blank">none yet</td><td class="blank">none yet</td><td>After sponsor conversations</td></tr>
+      <tr><td>H-09</td><td>Focus</td><td>We believe carmakers have little incentive to extend software support for older vehicles.</td><td>Viability</td><td>High</td><td>Estimate</td><td>No carmaker publicly offers paid extended support</td><td class="blank">none yet</td><td>No law sets a support period; Rivian cites 7 to 10 years of upgrades<sup><a href="#s32">32</a></sup></td><td>Before Studio 1 (Dec 3)</td></tr>
+      <tr><td>H-10</td><td>Access</td><td>We believe we can complete 3 conversations with Indiana public fleet staff by Nov 12.</td><td>Feasibility</td><td>Med</td><td>To-source</td><td>3 completed calls by Nov 12</td><td class="blank">none yet</td><td>1 call attempted Nov 8, not reached</td><td>Nov 12</td></tr>
+      <tr><td>H-11</td><td>W1</td><td>We believe a usable software support end estimate can be built from public signals (warranty length, model discontinuation, carrier shutdown dates, and carmaker connected-service notices) when the carmaker does not publish a date.</td><td>Feasibility</td><td>High</td><td>To-source</td><td>Estimates match the actual loss of service for at least 5 vehicles that lost features in the 2022 3G shutdown</td><td class="blank">none yet</td><td class="blank">none yet</td><td>After the 25-VIN test</td></tr>
+    </tbody>
+  </table></div>
+</div></details>
+</section>
+
+<!-- WALKTHROUGH -->
+<section id="walkthrough">
+  <div class="req">Check-In 1 walkthrough <span class="sct">· Scorecard: Communication</span></div>
+  <h2>Working session plan</h2>
+  <p class="point">About 12 minutes of walkthrough, then 18 minutes of reviewer feedback.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Time</th><th>Section</th><th>Main point</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0:00 to 1:30</td><td>Opening and summary</td><td>Cars now last longer than the software and modems inside them</td></tr>
+      <tr><td class="num">1:30 to 3:00</td><td>Problem statement</td><td>The fleet technician who diagnoses connected-system failures by hand</td></tr>
+      <tr><td class="num">3:00 to 3:30</td><td>Decision trail</td><td>Why we changed direction to the vehicle after the sale</td></tr>
+      <tr><td class="num">3:30 to 4:45</td><td>Ecosystem diagram</td><td>The carmaker controls support; fleets and later owners deal with its end</td></tr>
+      <tr><td class="num">4:45 to 7:00</td><td>Value chain map</td><td>18 stages tagged by SDV layer, how we scored them, growth drivers, and ADAS scope</td></tr>
+      <tr><td class="num">7:00 to 8:00</td><td>Business model canvases</td><td>What CARFAX and Snap-on show about the gap</td></tr>
+      <tr><td class="num">8:00 to 8:45</td><td>Feasibility and personas</td><td>Where our team fits and who we are designing for</td></tr>
+      <tr><td class="num">8:45 to 10:15</td><td>Wedges</td><td>Three wedges, which is weakest, and our gaps</td></tr>
+      <tr><td class="num">10:15 to 11:00</td><td>Tests and outreach</td><td>What we test first and where outreach stands</td></tr>
+      <tr><td class="num">11:00 to 12:00</td><td>Society and registry</td><td>Effects beyond the customer and the assumptions we are tracking</td></tr>
+      <tr><td class="num">12:00 to 30:00</td><td>Working session</td><td>Reviewer feedback on the questions below</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Questions for reviewers:</b></p>
+  <ol style="margin:0;padding-left:20px;display:grid;gap:4px;max-width:72ch">
+    <li>Is the fleet technician the right main persona, or should we focus on the fleet manager?</li>
+    <li>Which of our three wedges looks weakest to you?</li>
+    <li>Is a 25-VIN test a fair way to check whether a VIN and public data are enough (H-03)?</li>
+    <li>Who else should we contact, especially fleet technicians?</li>
+  </ol>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <details class="more"><summary><b>All sources</b> <span>35 numbered sources</span></summary><div class="in">
+<ol class="src">
+    <li id="s1">S&amp;P Global Mobility, <a href="https://press.spglobal.com/2025-05-21-U-S-Vehicle-Age-Rises-Again-to-12-8-Years-in-2025,-According-to-S-P-Global-Mobility">U.S. vehicle age rises again to 12.8 years in 2025</a>, May 2025.</li>
+    <li id="s2">CNBC, <a href="https://www.cnbc.com/2022/02/22/from-tesla-to-jeep-the-end-of-3g-networks-is-a-problem-for-millions-of-car-owners.html">From Tesla to Jeep: the end of 3G networks is a problem for millions of car owners</a>, Feb 2022.</li>
+    <li id="s3">News4Jax, reporting Consumer Reports, <a href="https://www.news4jax.com/money/2022/04/07/millions-of-cars-to-lose-some-safety-features-when-3g-shuts-down-consumer-reports-warns/">Millions of cars to lose some safety features when 3G shuts down</a>, Apr 2022.</li>
+    <li id="s4">The Drive, <a href="https://www.thedrive.com/news/its-probably-time-to-start-worrying-about-the-4g-lte-shutdown-bricking-cars">It's probably time to start worrying about the 4G LTE shutdown bricking cars</a>.</li>
+    <li id="s5">BCG, <a href="https://www.bcg.com/publications/2024/auto-software-revs-up-suppliers-switch-gears">As Auto Software Revs Up, Suppliers Must Switch Gears</a>, 2024.</li>
+    <li id="s6">Cox Automotive, <a href="https://www.coxautoinc.com/insights/used-vehicle-sales-increased-year-over-year-but-were-hampered-by-lower-supply-2024/">Used-vehicle sales increased year over year but were hampered by lower supply</a>, 2024 results.</li>
+    <li id="s7">Bureau of Transportation Statistics, <a href="https://www.bts.gov/archive/publications/national_transportation_statistics/table_01_14">Table 1-14: U.S. automobile and truck fleets by use</a>, 2015 values.</li>
+    <li id="s8">GPS Insight, <a href="https://www.gpsinsight.com/blog/what-is-the-cost-of-telematics/">How much does telematics cost?</a> Vendor pricing guide.</li>
+    <li id="s9">Geotab, <a href="https://www.geotab.com/au/3g-network-shutdown/">Upgrade to 4G before the 3G network shutdown</a>.</li>
+    <li id="s10">InsideEVs, <a href="https://insideevs.com/news/459093/recurrent-offers-ev-battery-diagnostic-reports/">Recurrent aims to offer battery health reports to energize used EV sales</a>.</li>
+    <li id="s11">Smartcar, <a href="https://smartcar.com">company website</a>: API across 40+ brands; customers listed include Recurrent.</li>
+    <li id="s12">Wikipedia, <a href="https://en.wikipedia.org/wiki/2020_Massachusetts_Question_1">2020 Massachusetts Question 1</a>.</li>
+    <li id="s13">x-engineer.org, <a href="https://x-engineer.org/un-ece-r155-executive-summary/">UN ECE R155 executive summary</a>. To be replaced with the UNECE regulation text before submission.</li>
+    <li id="s14">S&amp;P Global via PR Newswire, <a href="https://www.prnewswire.com/news-releases/sp-global-announces-intent-to-separate-mobility-segment-into-standalone-public-company-302441171.html">S&amp;P Global announces intent to separate Mobility segment into standalone public company</a>.</li>
+    <li id="s15">CARFAX, <a href="https://www.carfax.com/company/vhr-data-sources">About CARFAX: vehicle history data sources</a>.</li>
+    <li id="s16">Snap-on via Business Wire, <a href="https://www.businesswire.com/news/home/20250206467415/en/Snap-on-Announces-Fourth-Quarter-and-Full-Year-2024-Results">Snap-on announces fourth quarter and full year 2024 results</a>, Feb 2025.</li>
+    <li id="s17">Snap-on Incorporated, <a href="https://www.snapon.com/Snap-on-Files/Investors/2024-Q4/SNA-FY24-10K-Document_Final-Filed.pdf">Form 10-K for fiscal year 2024</a>.</li>
+    <li id="s18">Transport Topics, <a href="https://www.ttnews.com/articles/sunsetting-older-wireless-networkswill-force-fleets-replace-hardware">Sunsetting of older wireless networks will force fleets to replace hardware</a>, Dec 2018.</li>
+    <li id="s19">SiliconANGLE, <a href="https://siliconangle.com/2025/06/17/vehicle-intelligence-startup-applied-intuition-raises-600m-15b-valuation/">Applied Intuition raises $600M at $15B valuation</a>, June 2025.</li>
+    <li id="s20">Rose-Hulman Institute of Technology, <a href="https://www.rose-hulman.edu/about-us/facilities-operations/staff-and-contact.html">Facilities Operations staff and contact</a>.</li>
+    <li id="s21">Vigo County School Corporation, <a href="https://web.vigoschools.org/students/transportation/">Transportation</a>.</li>
+    <li id="s22">City of Terre Haute, <a href="https://www.terrehaute.in.gov/departments/streets/index.php">Street Department</a>.</li>
+    <li id="s23">City of Terre Haute, <a href="https://www.terrehaute.in.gov/departments/transit/index.php">Terre Haute Transit</a>.</li>
+    <li id="s24">Yellow Pages, <a href="https://www.yellowpages.com/terre-haute-in/mip/vigo-county-highway-department-6270019">Vigo County Highway Department listing</a>. To be confirmed on the county website.</li>
+    <li id="s25">Indiana State University, <a href="https://indianastate.edu/administration/finance-admin/facilities">Facilities Management</a>.</li>
+    <li id="s26">Terre Haute Economic Development Corporation, <a href="https://terrehauteedc.com/infrastructure-transportation/utilities-terre-haute-indiana">Utilities in Terre Haute</a>.</li>
+    <li id="s27">Mace Ford, <a href="https://www.maceford.com/">dealership website</a>.</li>
+    <li id="s28">Fuson Automotive, <a href="https://www.drivefuson.com/">dealership website</a>.</li>
+    <li id="s29">Cars.com, <a href="https://www.cars.com/dealers/176957/auto-house/">Auto House dealer listing</a>.</li>
+    <li id="s30">Rose-Hulman Institute of Technology, <a href="https://rose-hulman.edu/about-us/community-and-public-services/safety-and-security.html">Safety and Security</a>.</li>
+      <li id="s31">Colin Sutherland, Automotive Fleet, <a href="https://www.automotive-fleet.com/digital-cover-features/when-cars-stop-updating-but-dont-stop-driving">When cars stop updating but don't stop driving</a>, Feb 2026.</li>
+    <li id="s32">The Next Web, <a href="https://thenextweb.com/news/software-defined-car-lifespan-updates-eu-rules">Your phone gets five years of updates by law. Your car gets nothing</a>, Aug 2026.</li>
+    <li id="s33">YOUCANIC, <a href="https://www.youcanic.com/fca-security-gateway/">FCA Secure Gateway Module explained</a>. Published by a scan tool seller.</li>
+    <li id="s34">European Commission, <a href="https://digital-strategy.ec.europa.eu/en/news/eu-data-act-gives-users-control-over-data-connected-devices">EU Data Act gives users control over data from connected devices</a>, Sept 2025.</li>
+    <li id="s35">CarWhere, <a href="https://www.carwhere.com/guides/nhtsa-vin-decoder-api">NHTSA VIN decoder API (vPIC): tutorial, gotchas, real examples</a>.</li>
+  </ol>
+</div></details>
+
+</section>
+</div>
+
+<script>
+const S=[
+ {id:"L-01",ly:["Compute"],ph:"Before the sale",name:"Hardware headroom",plain:"How much spare computing power and memory, and which modem generation, are designed in",
+  who:"Carmaker architecture teams; chipmakers such as NXP, Qualcomm, Nvidia; telematics unit makers such as HARMAN, LG Electronics, Continental",
+  win:"Design wins per vehicle program; cost per unit",moat:"Long design cycles and automotive qualification",
+  pain:"Spare hardware is cut to meet cost targets, so vehicles ship with little capacity for future software",sc:[4,5,2,5]},
+ {id:"L-02",ly:["OTA"],ph:"Before the sale",name:"Support period",plain:"How many years the carmaker commits to providing software updates",
+  who:"The carmaker alone",win:"Updates delivered across the promised period",moat:"Complete control of the software",
+  pain:"Rarely stated publicly, so owners and fleets cannot plan around it",sc:[5,5,3,5]},
+ {id:"L-03",ly:["Connectivity"],ph:"Operating the vehicle",name:"Cellular connectivity",plain:"The network the vehicle's modem depends on",w:true,
+  who:"AT&T, Verizon, T-Mobile; carmaker connected-service divisions such as OnStar",win:"Connected vehicles under contract; revenue per vehicle",moat:"Network ownership and carmaker contracts",
+  pain:"When a network shuts down, factory modems stop working and cannot easily be replaced",sc:[3,4,1,4]},
+ {id:"L-04",ly:["OTA"],ph:"Operating the vehicle",name:"Over-the-air updates",plain:"Sending new software to vehicles already sold",
+  who:"HARMAN, Sibros, Excelfore, Aurora Labs, carmaker in-house teams",win:"Update success rate; rollback rate",moat:"Close integration with each carmaker's software",
+  pain:"Each update must work on every older hardware version still in service",sc:[3,4,2,3]},
+ {id:"L-05",ly:["Cybersecurity"],ph:"Operating the vehicle",name:"Security monitoring",plain:"Monitoring sold vehicles for cyberattacks",
+  who:"Upstream, VicOne, Argus, carmaker security centers",win:"Time to detect and patch; vehicles covered",moat:"Required across the vehicle's life by UN R155",
+  pain:"Protecting older vehicles after their software stops receiving updates",sc:[3,3,1,2]},
+ {id:"L-06",ly:["Features"],ph:"Operating the vehicle",name:"Feature subscriptions",plain:"Paid features enabled or disabled through software",
+  who:"Carmakers such as GM, Stellantis, BMW, Tesla",win:"Subscription uptake; revenue per vehicle",moat:"The carmaker controls access",
+  pain:"Subscriptions may not transfer to the next owner",sc:[4,5,4,5]},
+ {id:"L-07",ly:["Connectivity", "Data"],ph:"Operating the vehicle",name:"Fleet telematics",plain:"Remote tracking and diagnosis of fleet vehicles",w:true,
+  who:"Geotab, Samsara, Verizon Connect, carmaker fleet portals such as Ford Pro",win:"Vehicles connected; revenue per vehicle",moat:"Installed hardware and fleet relationships",
+  pain:"Add-on trackers are covered, but factory systems in the same vehicle appear not to be",sc:[3,3,1,2]},
+ {id:"L-08",ly:["Diagnostics"],ph:"Repairing the vehicle",name:"Dealer service",plain:"Franchised dealers repairing vehicles under the carmaker's brand",
+  who:"Franchised dealerships",win:"Service revenue per vehicle; repeat visits",moat:"Carmaker data and warranty work",
+  pain:"Remote fixes reduce visits to the service department",sc:[4,3,2,2]},
+ {id:"L-09",ly:["Diagnostics"],ph:"Repairing the vehicle",name:"Independent repair",plain:"Repair shops not affiliated with a carmaker",
+  who:"Independent shops and chains",win:"Vehicles serviced; technician productivity",moat:"Low; local relationships",
+  pain:"Limited access to the software needed for repairs; right-to-repair access is still disputed",sc:[2,1,1,1]},
+ {id:"L-10",ly:["Diagnostics", "Data"],ph:"Repairing the vehicle",name:"Diagnostic tools and repair information",plain:"Tools and data technicians use to find problems",
+  who:"Snap-on (Mitchell1), Autel, Bosch, Opus IVS",win:"Shops subscribed; vehicles covered",moat:"Repair databases and tool networks",
+  pain:"Each new software restriction makes shop diagnostic tools less useful",sc:[3,3,1,3]},
+ {id:"L-11",ly:["Data"],ph:"Repairing the vehicle",name:"Data access platforms",plain:"Services that connect to vehicle data across brands",
+  who:"Smartcar, High Mobility, carmaker data programs",win:"Brands covered; API usage",moat:"Carmaker agreements",
+  pain:"Each brand provides different data on different terms",sc:[2,2,1,3]},
+ {id:"L-12",ly:["Hardware"],ph:"Repairing the vehicle",name:"Replacement modules",plain:"Used and remanufactured electronic parts",
+  who:"Dealer parts departments, LKQ, remanufacturers",win:"Parts sold; return rate",moat:"Low",
+  pain:"Replacement modules often must be coded or paired to the specific vehicle",sc:[2,2,1,1]},
+ {id:"L-13",ly:["Data"],ph:"Reselling the vehicle",name:"History reports",plain:"Reports on a used vehicle's past",
+  who:"CARFAX, AutoCheck, Recurrent (EV batteries)",win:"Reports sold; dealer subscriptions",moat:"Record databases and brand trust",
+  pain:"Reports describe past events, not the condition of the software",sc:[4,2,1,3]},
+ {id:"L-14",ly:["Data"],ph:"Reselling the vehicle",name:"Valuation and auctions",plain:"Pricing used vehicles and moving them between owners",
+  who:"Manheim and Kelley Blue Book (Cox Automotive), J.D. Power, ACV Auctions",win:"Volume sold; pricing accuracy",moat:"Market data and scale",
+  pain:"No standard method for pricing software and connectivity condition",sc:[4,3,1,4]},
+ {id:"L-15",ly:["Data", "Connectivity"],ph:"Reselling the vehicle",name:"Fleet replacement planning",plain:"Deciding when fleet vehicles are retired and resold",w:true,
+  who:"Fleet management companies such as Enterprise Fleet Management and Holman; in-house spreadsheets",win:"Replacements on budget; resale value",moat:"Low; mostly in-house",
+  pain:"Plans appear to be based on age and mileage, not on when software or connectivity will end",sc:[2,2,1,2]},
+ {id:"L-16",ly:["Data"],ph:"Reselling the vehicle",name:"Insurance and leasing",plain:"Pricing risk and future value",
+  who:"Insurers and leasing companies",win:"Pricing accuracy; loss ratio",moat:"Actuarial data and scale",
+  pain:"Software condition is not reflected in value or risk pricing",sc:[3,2,1,3]},
+ {id:"L-17",ly:["OTA", "Connectivity", "Cybersecurity"],ph:"End of life",name:"End of support",plain:"What happens when updates and connectivity stop",w:true,
+  who:"The carmaker announces it, if at all; no service exists",win:"Not currently measured",moat:"None established",
+  pain:"Owners usually learn about it only when a feature stops working",sc:[1,1,1,4]},
+ {id:"L-18",ly:["Hardware"],ph:"End of life",name:"Recycling and reuse",plain:"Recovering materials and batteries",
+  who:"Redwood Materials, salvage auctions such as Copart, scrapyards",win:"Material recovered; cost per vehicle",moat:"Processing capacity",
+  pain:"Electronics and batteries are difficult to recover economically",sc:[2,2,1,1]}
+];
+const total=s=>s.sc.reduce((a,b)=>a+b,0);
+const lyr=s=>`<span class="ly">${s.ly.join(" · ")}</span>`;
+const tier=t=>t<=8?["open","Open"]:t<=12?["mid","Contested"]:["locked","Locked"];
+const pill=s=>{const t=total(s),[c,l]=tier(t);return `<span class="pill ${c}">${t} · ${l}</span>`};
+const phases=[["Before the sale","Decisions that set how long the vehicle stays supported"],["Operating the vehicle","Connectivity, updates, and monitoring"],["Repairing the vehicle","Repair, diagnostics, and parts"],["Reselling the vehicle","Value, history, and later owners"],["End of life","Support ends and materials are recovered"]];
+const flow=document.getElementById("flow");
+phases.forEach(([p,note],i)=>{
+  const items=S.filter(s=>s.ph===p).map(s=>`<div class="stage${s.w?" w":""}"><div class="top"><span class="id">${s.id}</span>${pill(s)}</div><div class="nm">${s.name}</div>${lyr(s)}${s.w?'<span class="wt">Lead wedge works here</span>':""}</div>`).join("");
+  flow.insertAdjacentHTML("beforeend",`<div class="band"><div class="band-head"><h3>${p}</h3><p>${note}</p></div><div class="cols">${items}</div></div>`);
+  if(i<phases.length-1)flow.insertAdjacentHTML("beforeend",`<div class="arrow" aria-hidden="true">then</div>`);
+});
+let last="";const hb=document.querySelector("#heat tbody"),db=document.querySelector("#detail tbody");
+S.forEach(s=>{
+  if(s.ph!==last){hb.insertAdjacentHTML("beforeend",`<tr class="grp"><td colspan="7">${s.ph}</td></tr>`);db.insertAdjacentHTML("beforeend",`<tr class="grp"><td colspan="6">${s.ph}</td></tr>`);last=s.ph;}
+  hb.insertAdjacentHTML("beforeend",`<tr class="${s.w?"w":""}"><td class="nm"><b>${s.id} ${s.name}</b><span>${s.plain}</span></td><td>${s.ly.join(", ")}</td>${s.sc.map(v=>`<td class="sc s${v}">${v}</td>`).join("")}<td class="tot">${pill(s)}</td></tr>`);
+  db.insertAdjacentHTML("beforeend",`<tr class="${s.w?"w":""}"><td>${s.id}<br>${s.name}</td><td>${s.ly.join(", ")}</td><td>${s.who}</td><td>${s.win}</td><td>${s.moat}</td><td>${s.pain}</td></tr>`);
+});
+const short={"L-09":"Easy to interview, hard to sell to","L-12":"Hardware heavy, far from software","L-18":"Outside SDV software","L-15":"Where our lead wedge sits","L-17":"No service exists here today","L-11":"Smartcar already covers 40+ brands"};
+const why={
+ "L-09":"The most open stage, but shops are under financial pressure and have little to spend. Interviews are easy to arrange; sales would be difficult.",
+ "L-12":"Open, but hardware intensive and far from software.",
+ "L-18":"Open, but outside SDV software.",
+ "L-15":"Open and directly related to our lead wedge. Fleets appear to plan replacements by age and mileage, not by when software or connectivity will end.",
+ "L-17":"No service exists here. The carmaker decides, and others usually learn about it late.",
+ "L-11":"Open and growing, but Smartcar already covers more than 40 brands."
+};
+const spots=S.filter(s=>total(s)<=8).sort((a,b)=>total(a)-total(b)||a.id.localeCompare(b.id));
+document.getElementById("spots").innerHTML=spots.map(s=>`<div class="spot">${pill(s)}<b>${s.id} ${s.name}</b><p>${short[s.id]||""}</p></div>`).join("");
+document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;const t=document.getElementById(a.getAttribute("href").slice(1));for(let d=t&&t.closest("details");d;d=d.parentElement&&d.parentElement.closest("details"))d.open=true;});
+if(location.hash){const t=document.getElementById(location.hash.slice(1));const d=t&&t.closest("details");if(d)d.open=true;}
+window.addEventListener("beforeprint",()=>document.querySelectorAll("details").forEach(d=>d.open=true));
+</script>
